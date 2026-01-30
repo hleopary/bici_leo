@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BikeMaster Pro - Leo Pary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --card-bg: rgba(30, 41, 59, 0.95);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header principal */
+        .main-header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .brand-info h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .brand-info p {
+            color: var(--gray);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .quick-stats {
+            display: flex;
+            gap: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            min-width: 140px;
+            border: 1px solid var(--card-border);
+        }
+
+        .stat-card .number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Grid principal */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+        }
+
+        /* Panel izquierdo */
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 i {
+            color: var(--primary);
+        }
+
+        /* Progreso */
+        .progress-circle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 25px;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+
+        .circle-progress {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 565;
+            stroke-dashoffset: 565;
+            transition: stroke-dashoffset 1s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-text .percentage {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--light);
+            line-height: 1;
+        }
+
+        .progress-text .label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        /* Botones de acción */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 14px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .btn-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        .btn-success:hover {
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .btn-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Panel de tareas */
+        .tasks-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+        }
+
+        .tasks-header {
+            padding: 25px 25px 15px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .tasks-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tasks-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .category-stats {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .task-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
+
+        .task-item.completed {
+            background: var(--success-bg);
+            border-color: var(--secondary);
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .task-item.completed .task-checkbox {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .task-item.completed .task-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--light);
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .task-priority {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .priority-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .task-item:hover .task-actions {
+            opacity: 1;
+        }
+
+        .task-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .task-action-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--light);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .select-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            padding-right: 45px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-header {
+                flex-direction: column;
+                gap: 25px;
+                text-align: center;
+            }
+            
+            .quick-stats {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .quick-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-card {
+                width: 100%;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .task-item {
+            animation: slideIn 0.3s ease forwards;
+            animation-delay: calc(var(--item-index) * 0.05s);
+            opacity: 0;
+        }
+
+        /* Notificaciones Toast */
+        .toast-success {
+            background: linear-gradient(135deg, var(--secondary), #0da271) !important;
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, var(--danger), #dc2626) !important;
+        }
+
+        .toast-info {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header principal -->
+        <header class="main-header fade-in">
+            <div class="brand">
+                <div class="logo">
+                    <i class="fas fa-bicycle"></i>
+                </div>
+                <div class="brand-info">
+                    <h1>BikeMaster Pro</h1>
+                    <p>Checklist Mecánico Avanzado • Leo Pary</p>
+                </div>
+            </div>
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="number" id="total-tasks">0</div>
+                    <div class="label">Total Tareas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="completed-tasks">0</div>
+                    <div class="label">Completadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="pending-tasks">0</div>
+                    <div class="label">Pendientes</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Grid principal -->
+        <div class="main-grid">
+            <!-- Panel izquierdo -->
+            <aside class="side-panel">
+                <div class="card fade-in" style="animation-delay: 0.1s">
+                    <h2><i class="fas fa-chart-line"></i> Progreso</h2>
+                    <div class="progress-circle">
+                        <svg width="200" height="200">
+                            <circle class="circle-bg" cx="100" cy="100" r="90"></circle>
+                            <circle class="circle-progress" cx="100" cy="100" r="90"></circle>
+                        </svg>
+                        <div class="progress-text">
+                            <div class="percentage" id="progress-percent">0%</div>
+                            <div class="label">Completado</div>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="exportReport()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-success" onclick="exportChecklist()">
+                            <i class="fas fa-file-excel"></i> JSON
+                        </button>
+                        <button class="btn btn-danger btn-full" onclick="resetAll()">
+                            <i class="fas fa-redo"></i> Reiniciar Todo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card fade-in" style="animation-delay: 0.2s">
+                    <h2><i class="fas fa-tools"></i> Acciones Rápidas</h2>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="showAddTaskModal()">
+                            <i class="fas fa-plus"></i> Nueva Tarea
+                        </button>
+                        <button class="btn btn-success" onclick="completeAll()">
+                            <i class="fas fa-check-double"></i> Completar Todo
+                        </button>
+                        <button class="btn" onclick="sortByPriority()" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid var(--warning);">
+                            <i class="fas fa-sort-amount-down"></i> Ordenar
+                        </button>
+                        <button class="btn" onclick="toggleAllCategories()" style="background: rgba(148, 116, 255, 0.1); color: #8b5cf6; border: 1px solid #8b5cf6;">
+                            <i class="fas fa-layer-group"></i> Categorías
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card fade-in" style="animation-delay: 0.3s">
+                    <h2><i class="fas fa-info-circle"></i> Información</h2>
+                    <div style="margin-top: 15px;">
+                        <p style="color: var(--gray); margin-bottom: 10px; font-size: 0.95rem;">
+                            <i class="fas fa-calendar-alt" style="color: var(--primary); margin-right: 8px;"></i>
+                            <strong>Próxima salida:</strong> Domingo 10:00 AM
+                        </p>
+                        <p style="color: var(--gray); margin-bottom: 10px; font-size: 0.95rem;">
+                            <i class="fas fa-road" style="color: var(--secondary); margin-right: 8px;"></i>
+                            <strong>Ruta:</strong> 75km montaña
+                        </p>
+                        <p style="color: var(--gray); font-size: 0.95rem;">
+                            <i class="fas fa-user-friends" style="color: var(--warning); margin-right: 8px;"></i>
+                            <strong>Grupo:</strong> 15 ciclistas
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Panel de tareas principal -->
+            <main class="tasks-panel fade-in" style="animation-delay: 0.4s">
+                <div class="tasks-header">
+                    <h2>Checklist de Preparación</h2>
+                    <div class="filter-tabs">
+                        <div class="filter-tab active" onclick="filterTasks('all')">Todas</div>
+                        <div class="filter-tab" onclick="filterTasks('pending')">Pendientes</div>
+                        <div class="filter-tab" onclick="filterTasks('completed')">Completadas</div>
+                        <div class="filter-tab" onclick="filterTasks('high')">Alta Prioridad</div>
+                        <div class="filter-tab" onclick="filterTasks('today')">Para Hoy</div>
+                    </div>
+                </div>
+                <div class="tasks-list" id="tasks-list">
+                    <!-- Tareas se renderizarán aquí -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para nueva tarea -->
+    <div class="modal" id="addTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agregar Nueva Tarea</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="taskForm" onsubmit="addNewTask(event)">
+                <div class="form-group">
+                    <label for="taskTitle">Título de la tarea</label>
+                    <input type="text" id="taskTitle" class="form-control" placeholder="Ej: Revisar presión de cubiertas" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskCategory">Categoría</label>
+                    <select id="taskCategory" class="form-control select-control" required>
+                        <option value="">Seleccionar categoría</option>
+                        <option value="Ruedas">Ruedas</option>
+                        <option value="Frenos">Frenos</option>
+                        <option value="Transmisión">Transmisión</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Equipo">Equipo</option>
+                        <option value="Personalizado">Personalizado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Prioridad</label>
+                    <select id="taskPriority" class="form-control select-control" required>
+                        <option value="high">Alta (Crítica)</option>
+                        <option value="medium" selected>Media (Importante)</option>
+                        <option value="low">Baja (Rutina)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskNotes">Notas (opcional)</label>
+                    <textarea id="taskNotes" class="form-control" rows="3" placeholder="Detalles específicos..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Agregar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar tarea -->
+    <div class="modal" id="editTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Tarea</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editTaskForm" onsubmit="updateTask(event)">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <label for="editTaskTitle">Título de la tarea</label>
+                    <input type="text" id="editTaskTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskCategory">Categoría</label>
+                    <select id="editTaskCategory" class="form-control select-control" required>
+                        <option value="Ruedas">Ruedas</option>
+                        <option value="Frenos">Frenos</option>
+                        <option value="Transmisión">Transmisión</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Equipo">Equipo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskPriority">Prioridad</label>
+                    <select id="editTaskPriority" class="form-control select-control" required>
+                        <option value="high">Alta</option>
+                        <option value="medium">Media</option>
+                        <option value="low">Baja</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskNotes">Notas</label>
+                    <textarea id="editTaskNotes" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="deleteTask()">Eliminar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Configuración inicial
+        toastr.options = {
+            positionClass: "toast-top-right",
+            progressBar: true,
+            closeButton: true,
+            timeOut: 3000
+        };
+
+        // Base de datos mejorada con más información
+        const tasks = [
+            {
+                id: 'u_pression',
+                title: 'Presión de aire y estado de cubiertas',
+                category: 'Ruedas',
+                priority: 'high',
+                completed: false,
+                createdAt: new Date(),
+                notes: 'Revisar presión según terreno: 65-75 PSI para ruta, 25-35 PSI para MTB'
+            },
+            {
+                id: 'u_qr',
+                title: 'Cierres rápidos o tuercas ajustadas',
+                category: 'Ruedas',
+                priority: 'high',
+                completed: false,
+                createdAt: new Date(),
+                notes: 'Apretar a 10-12 Nm'
+            },
+            {
+                id: 'u_truing',
+                title: 'Centrado de ruedas (truing)',
+                category: 'Ruedas',
+                priority: 'medium',
+                completed: false,
+                createdAt: new Date(),
+                notes: 'Usar centrador de ruedas'
+            },
+            {
+                id: 'u_brakes',
+                title: 'Pastillas/Zapatas y frenado efectivo',
+                category: 'Frenos',
+                priority: 'high',
+                completed: false,
+                createdAt: new Date()
+            },
+            {
+                id: 'u_brake_cables',
+                title: 'Ajuste de cables y herrajes',
+                category: 'Frenos',
+                priority: 'medium',
+                completed: false,
+                createdAt: new Date()
+            },
+            {
+                id: 'u_chain',
+                title: 'Cadena limpia y lubricada',
+                category: 'Transmisión',
+                priority: 'medium',
+                completed: false,
+                createdAt: new Date(),
+                notes: 'Usar lubricante seco para condiciones secas'
+            },
+            {
+                id: 'u_chain_wear',
+                title: 'Desgaste de cadena (medición)',
+                category: 'Transmisión',
+                priority: 'medium',
+                completed: false,
+                createdAt: new Date(),
+                notes: 'Reemplazar si > 0.75% de desgaste'
+            },
+            {
+                id: 'u_gears',
+                title: 'Cambios pasan correctamente',
+                category: 'Transmisión',
+                priority: 'high',
+                completed: false,
+                createdAt: new Date()
+            },
+            {
+                id: 'u_bolts',
+                title: 'Ajuste de stem y manubrio',
+                category: 'Seguridad',
+                priority: 'high',
+                completed: false,
+                createdAt: new Date(),
+                notes: '5-6 Nm para stem, 4-5 Nm para manubrio'
+            },
+            {
+                id: 'u_saddle',
+                title: 'Tija y sillín ajustados',
+                category: 'Seguridad',
+                priority: 'medium',
+                completed: false,
+                createdAt: new Date()
+            },
+            {
+                id: 'u_lights',
+                title: 'Luces y casco listo',
+                category: 'Equipo',
+                priority: 'high',
+                completed: false,
+                createdAt: new Date(),
+                notes: 'Cargar luces la noche anterior'
+            },
+            {
+                id: 'u_tools',
+                title: 'Kit de herramientas y repuestos',
+                category: 'Equipo',
+                priority: 'medium',
+                completed: false,
+                createdAt: new Date(),
+                notes: 'Incluir cámara de repuesto, parches, multiherramienta'
+            }
+        ];
+
+        // Estado de la aplicación
+        const appState = {
+            filter: 'all',
+            sortBy: 'priority',
+            editingTask: null
+        };
+
+        // Inicializar almacenamiento
+        function initializeStorage() {
+            tasks.forEach(task => {
+                if (!localStorage.getItem(task.id)) {
+                    localStorage.setItem(task.id, JSON.stringify(task));
+                }
+            });
+        }
+
+        // Obtener tareas del localStorage
+        function getTasks() {
+            return tasks.map(task => {
+                const stored = localStorage.getItem(task.id);
+                return stored ? JSON.parse(stored) : task;
+            });
+        }
+
+        // Actualizar UI
+        function updateUI() {
+            const allTasks = getTasks();
+            const completed = allTasks.filter(t => t.completed).length;
+            const total = allTasks.length;
+            const pending = total - completed;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            // Actualizar estadísticas
+            document.getElementById('total-tasks').textContent = total;
+            document.getElementById('completed-tasks').textContent = completed;
+            document.getElementById('pending-tasks').textContent = pending;
+            document.getElementById('progress-percent').textContent = `${progress}%`;
+
+            // Actualizar círculo de progreso
+            const circle = document.querySelector('.circle-progress');
+            const radius = 90;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (progress / 100) * circumference;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = offset;
+
+            // Renderizar tareas
+            renderTasks();
+        }
+
+        // Renderizar tareas con filtros
+        function renderTasks() {
+            const tasksList = document.getElementById('tasks-list');
+            tasksList.innerHTML = '';
+
+            let filteredTasks = getTasks();
+
+            // Aplicar filtro
+            switch (appState.filter) {
+                case 'pending':
+                    filteredTasks = filteredTasks.filter(t => !t.completed);
+                    break;
+                case 'completed':
+                    filteredTasks = filteredTasks.filter(t => t.completed);
+                    break;
+                case 'high':
+                    filteredTasks = filteredTasks.filter(t => t.priority === 'high');
+                    break;
+                case 'today':
+                    filteredTasks = filteredTasks.filter(t => {
+                        const today = new Date().toDateString();
+                        const created = new Date(t.createdAt).toDateString();
+                        return created === today;
+                    });
+                    break;
+            }
+
+            // Agrupar por categoría
+            const categories = [...new Set(filteredTasks.map(t => t.category))];
+            
+            categories.forEach((category, catIndex) => {
+                const categoryTasks = filteredTasks.filter(t => t.category === category);
+                const completedInCategory = categoryTasks.filter(t => t.completed).length;
+                
+                const categorySection = document.createElement('div');
+                categorySection.className = 'category-section';
+                categorySection.innerHTML = `
+                    <div class="category-header">
+                        <div class="category-title">
+                            <i class="fas ${getCategoryIcon(category)}"></i>
+                            ${category}
+                        </div>
+                        <div class="category-stats">
+                            ${completedInCategory}/${categoryTasks.length}
+                        </div>
+                    </div>
+                `;
+
+                categoryTasks.forEach((task, index) => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                    taskItem.style.setProperty('--item-index', index);
+                    taskItem.innerHTML = `
+                        <div class="task-checkbox" onclick="toggleTask('${task.id}')"></div>
+                        <div class="task-content">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-${task.priority}">
+                                    ${getPriorityLabel(task.priority)}
+                                </span>
+                                ${task.notes ? '<span><i class="fas fa-sticky-note"></i> Notas</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn" onclick="editTask('${task.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="task-action-btn" onclick="addNote('${task.id}')">
+                                <i class="fas fa-comment"></i>
+                            </button>
+                        </div>
+                    `;
+                    categorySection.appendChild(taskItem);
+                });
+
+                tasksList.appendChild(categorySection);
+            });
+
+            // Mostrar mensaje si no hay tareas
+            if (filteredTasks.length === 0) {
+                tasksList.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px; color: var(--gray);">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h3>No hay tareas para mostrar</h3>
+                        <p>Usa el botón "Nueva Tarea" para agregar items al checklist</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Funciones auxiliares
+        function getCategoryIcon(category) {
+            const icons = {
+                'Ruedas': 'fa-tire',
+                'Frenos': 'fa-hand-paper',
+                'Transmisión': 'fa-cogs',
+                'Seguridad': 'fa-shield-alt',
+                'Equipo': 'fa-tools',
+                'Personalizado': 'fa-plus-circle'
+            };
+            return icons[category] || 'fa-circle';
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = {
+                'high': 'Alta Prioridad',
+                'medium': 'Media Prioridad',
+                'low': 'Baja Prioridad'
+            };
+            return labels[priority];
+        }
+
+        // Funciones principales
+        function toggleTask(id) {
+            const tasks = getTasks();
+            const taskIndex = tasks.findIndex(t => t.id === id);
+            
+            if (taskIndex !== -1) {
+                tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                localStorage.setItem(id, JSON.stringify(tasks[taskIndex]));
+                
+                // Notificación
+                if (tasks[taskIndex].completed) {
+                    toastr.success(`¡Tarea completada!`, 'Bien hecho');
+                }
+                
+                updateUI();
+            }
+        }
+
+        function filterTasks(filter) {
+            // Actualizar pestañas activas
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            appState.filter = filter;
+            renderTasks();
+        }
+
+        function completeAll() {
+            if (confirm('¿Marcar todas las tareas como completadas?')) {
+                const tasks = getTasks();
+                tasks.forEach(task => {
+                    task.completed = true;
+                    localStorage.setItem(task.id, JSON.stringify(task));
+                });
+                toastr.success('¡Todas las tareas completadas!', 'Excelente trabajo');
+                updateUI();
+            }
+        }
+
+        function resetAll() {
+            if (confirm('¿Estás seguro de reiniciar todo el progreso? Esto marcará todas las tareas como pendientes.')) {
+                const tasks = getTasks();
+                tasks.forEach(task => {
+                    task.completed = false;
+                    localStorage.setItem(task.id, JSON.stringify(task));
+                });
+                toastr.info('Progreso reiniciado', 'Listo para comenzar');
+                updateUI();
+            }
+        }
+
+        // Modal functions
+        function showAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('addTaskModal').style.display = 'none';
+            document.getElementById('taskForm').reset();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editTaskModal').style.display = 'none';
+        }
+
+        function addNewTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value;
+            const category = document.getElementById('taskCategory').value;
+            const priority = document.getElementById('taskPriority').value;
+            const notes = document.getElementById('taskNotes').value;
+            
+            const newTask = {
+                id: 'task_' + Date.now(),
+                title: title,
+                category: category,
+                priority: priority,
+                completed: false,
+                createdAt: new Date(),
+                notes: notes
+            };
+            
+            // Agregar a la lista
+            tasks.push(newTask);
+            localStorage.setItem(newTask.id, JSON.stringify(newTask));
+            
+            toastr.success('Nueva tarea agregada', '¡Perfecto!');
+            closeModal();
+            updateUI();
+        }
+
+        function editTask(id) {
+            const tasks = getTasks();
+            const task = tasks.find(t => t.id === id);
+            
+            if (task) {
+                appState.editingTask = task;
+                document.getElementById('editTaskId').value = task.id;
+                document.getElementById('editTaskTitle').value = task.title;
+                document.getElementById('editTaskCategory').value = task.category;
+                document.getElementById('editTaskPriority').value = task.priority;
+                document.getElementById('editTaskNotes').value = task.notes || '';
+                
+                document.getElementById('editTaskModal').style.display = 'flex';
+            }
+        }
+
+        function updateTask(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('editTaskId').value;
+            const title = document.getElementById('editTaskTitle').value;
+            const category = document.getElementById('editTaskCategory').value;
+            const priority = document.getElementById('editTaskPriority').value;
+            const notes = document.getElementById('editTaskNotes').value;
+            
+            const updatedTask = {
+                ...appState.editingTask,
+                title: title,
+                category: category,
+                priority: priority,
+                notes: notes
+            };
+            
+            localStorage.setItem(id, JSON.stringify(updatedTask));
+            toastr.success('Tarea actualizada', 'Cambios guardados');
+            closeEditModal();
+            updateUI();
+        }
+
+        function deleteTask() {
+            if (confirm('¿Eliminar esta tarea permanentemente?')) {
+                const id = document.getElementById('editTaskId').value;
+                localStorage.removeItem(id);
+                
+                // Eliminar del array
+                const taskIndex = tasks.findIndex(t => t.id === id);
+                if (taskIndex !== -1) {
+                    tasks.splice(taskIndex, 1);
+                }
+                
+                toastr.info('Tarea eliminada', 'Hecho');
+                closeEditModal();
+                updateUI();
+            }
+        }
+
+        function addNote(id) {
+            const note = prompt('Agregar una nota para esta tarea:');
+            if (note !== null) {
+                const tasks = getTasks();
+                const task = tasks.find(t => t.id === id);
+                
+                if (task) {
+                    task.notes = note;
+                    localStorage.setItem(id, JSON.stringify(task));
+                    toastr.info('Nota agregada', 'Información guardada');
+                    updateUI();
+                }
+            }
+        }
+
+        // Exportar funciones
+        function exportChecklist() {
+            const data = {
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    version: '2.0',
+                    app: 'BikeMaster Pro'
+                },
+                checklist: getTasks(),
+                summary: {
+                    total: getTasks().length,
+                    completed: getTasks().filter(t => t.completed).length,
+                    progress: Math.round((getTasks().filter(t => t.completed).length / getTasks().length) * 100)
+                }
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const exportFileDefaultName = `bikemaster-checklist-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            toastr.success('Checklist exportado', 'Archivo JSON descargado');
+        }
+
+        function exportReport() {
+            toastr.info('Generando PDF...', 'Próximamente');
+            // Aquí implementarías generación de PDF con jsPDF
+        }
+
+        function sortByPriority() {
+            toastr.info('Ordenando por prioridad...', 'Organizando');
+            // Implementar lógica de ordenamiento
+        }
+
+        function toggleAllCategories() {
+            toastr.info('Alternando categorías', 'Mostrar/ocultar');
+            // Implementar colapsar/expandir categorías
+        }
+
+        // Inicializar aplicación
+        function init() {
+            initializeStorage();
+            updateUI();
+            
+            // Configurar event listeners para cerrar modales
+            window.addEventListener('click', (event) => {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+            
+            console.log('🚴 BikeMaster Pro inicializado correctamente');
+        }
+
+        // Iniciar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
