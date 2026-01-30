@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Mecánico Olmo</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #3b82f6; /* Azul Olmo */
+            --text: #f1f5f9;
+            --accent: #38bdf8;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        p.subtitle {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin: 1.5rem 0 0.8rem 0;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .item:hover {
+            background: rgba(255,255,255,0.07);
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+
+        .item.checked span {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+
+        .btn-reset {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔧 Check Mecánico</h1>
+    <p class="subtitle">Olmo All Terra 3x9 - Salida Pereyra</p>
+    
+    <div id="checklist-container">
+        </div>
+
+    <button class="btn-reset" onclick="resetChecklist()">Limpiar Checklist</button>
+</div>
+
+<script>
+    const checklistData = [
+        { id: 'clean', section: 'Transmisión', text: 'Limpieza y lubricación (Aceite Seco)' },
+        { id: 'sync', section: 'Transmisión', text: 'Sincronización descarrilador Altus' },
+        { id: 'hollow', section: 'Caja/Bielas', text: 'Torque tornillos Hollowtech (Biela Izq)' },
+        { id: 'vbrake', section: 'Frenos', text: 'Centrado de levas y tensión V-Brake' },
+        { id: 'pads', section: 'Frenos', text: 'Estado y alineación de zapatas' },
+        { id: 'pressure', section: 'Ruedas', text: 'Presión de aire (Terreno Mixto)' },
+        { id: 'qr', section: 'Ruedas', text: 'Ajuste de cierres rápidos (QR)' }
+    ];
+
+    const container = document.getElementById('checklist-container');
+
+    function render() {
+        let currentSection = "";
+        container.innerHTML = "";
+        
+        checklistData.forEach(item => {
+            if (item.section !== currentSection) {
+                const title = document.createElement('div');
+                title.className = 'section-title';
+                title.innerText = item.section;
+                container.appendChild(title);
+                currentSection = item.section;
+            }
+
+            const isChecked = localStorage.getItem(item.id) === 'true';
+            
+            const label = document.createElement('label');
+            label.className = `item ${isChecked ? 'checked' : ''}`;
+            label.innerHTML = `
+                <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''} 
+                       onchange="toggleItem('${item.id}')">
+                <span>${item.text}</span>
+            `;
+            container.appendChild(label);
+        });
+    }
+
+    function toggleItem(id) {
+        const checkbox = document.getElementById(id);
+        localStorage.setItem(id, checkbox.checked);
+        render(); // Re-render para aplicar el estilo de tachado
+    }
+
+    function resetChecklist() {
+        if(confirm("¿Querés limpiar el progreso?")) {
+            checklistData.forEach(item => localStorage.removeItem(item.id));
+            render();
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>

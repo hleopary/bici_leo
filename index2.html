@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Ciclista Universal</title>
+    <style>
+        :root {
+            --bg: #111827;
+            --card: #1f2937;
+            --primary: #10b981;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+        }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.2rem; text-align: center; }
+        .progress-container { background: #374151; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; }
+        #progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 0.3s; }
+        .section { font-weight: bold; font-size: 0.8rem; color: var(--primary); margin-top: 15px; text-transform: uppercase; border-bottom: 1px solid #374151; padding-bottom: 3px; }
+        .item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #2d3748; cursor: pointer; }
+        .item:last-child { border: none; }
+        input[type="checkbox"] { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--primary); }
+        .item.done span { text-decoration: line-through; color: var(--muted); }
+        .btn-reset { width: 100%; background: none; border: 1px solid #ef4444; color: #ef4444; padding: 8px; border-radius: 6px; margin-top: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🛠️ Chequeo General Bici</h2>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <p class="subtitle">Leo Pary</p>
+        <div id="list"></div>
+        <button class="btn-reset" onclick="reset()">Reiniciar Checklist</button>
+    </div>
+
+    <script>
+        const tasks = [
+            { id: 'u_pression', cat: 'Ruedas', t: 'Presión de aire y estado de cubiertas' },
+            { id: 'u_qr', cat: 'Ruedas', t: 'Cierres rápidos o tuercas ajustadas' },
+            { id: 'u_brakes', cat: 'Frenos', t: 'Pastillas/Zapatas y frenado efectivo' },
+            { id: 'u_chain', cat: 'Transmisión', t: 'Cadena limpia y lubricada' },
+            { id: 'u_gears', cat: 'Transmisión', t: 'Cambios pasan correctamente' },
+            { id: 'u_bolts', cat: 'Seguridad', t: 'Ajuste de stem y manubrio' },
+            { id: 'u_lights', cat: 'Seguridad', t: 'Luces y casco listo' }
+        ];
+
+        function render() {
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            let lastCat = '';
+            let checkedCount = 0;
+
+            tasks.forEach(task => {
+                if (task.cat !== lastCat) {
+                    const div = document.createElement('div');
+                    div.className = 'section';
+                    div.innerText = task.cat;
+                    list.appendChild(div);
+                    lastCat = task.cat;
+                }
+                const isDone = localStorage.getItem(task.id) === 'true';
+                if(isDone) checkedCount++;
+
+                const label = document.createElement('label');
+                label.className = `item ${isDone ? 'done' : ''}`;
+                label.innerHTML = `<input type="checkbox" ${isDone ? 'checked' : ''} onchange="save('${task.id}', this.checked)"> <span>${task.t}</span>`;
+                list.appendChild(label);
+            });
+
+            document.getElementById('progress-bar').style.width = (checkedCount / tasks.length * 100) + '%';
+        }
+
+        function save(id, val) { localStorage.setItem(id, val); render(); }
+        function reset() { if(confirm('¿Reiniciar?')) { tasks.forEach(t => localStorage.removeItem(t.id)); render(); } }
+        render();
+    </script>
+</body>
+</html>
