@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BikeMaster Pro - Leo Pary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ============================================
+           VARIABLES Y RESET
+        ============================================ */
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #cbd5e1;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --card-bg: rgba(30, 41, 59, 0.95);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --header-height: 80px;
+            --sidebar-width: 300px;
+            --sidebar-collapsed: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           BARRA DE PROGRESO EN HEADER
+        ============================================ */
+        .progress-header {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            border-radius: 0 4px 4px 0;
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-percent {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ============================================
+           TARJETAS DE PROGRESO POR CATEGORÍA
+        ============================================ */
+        .category-progress-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .category-progress-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .category-progress-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .category-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .category-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-percent {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .category-progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .category-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transition: width 0.5s ease;
+        }
+
+        .category-stats {
+            font-size: 0.75rem;
+            color: var(--gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ============================================
+           SISTEMA DE BÚSQUEDA
+        ============================================ */
+        .search-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 45px 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            pointer-events: none;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 5px;
+            display: none;
+        }
+
+        .search-clear:hover {
+            color: var(--light);
+        }
+
+        .search-results-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--gray);
+            display: none;
+        }
+
+        .search-results-info.show {
+            display: block;
+        }
+
+        /* ============================================
+           HEADER UNIVERSAL
+        ============================================ */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .header-info h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--light);
+            margin-bottom: 4px;
+        }
+
+        .header-info p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .header-stat {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .header-stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .header-stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid var(--card-border);
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .header-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        .header-btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #1e40af);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ============================================
+           SIDEBAR DESKTOP (CON BÚSQUEDA Y PROGRESO)
+        ============================================ */
+        .desktop-sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-right: 1px solid var(--card-border);
+            position: fixed;
+            top: var(--header-height);
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            z-index: 900;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2);
+            padding-top: 6px; /* Para la barra de progreso */
+        }
+
+        .sidebar-content {
+            padding: 30px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        /* ============================================
+           RESPONSIVE - MOBILE
+        ============================================ */
+        @media (max-width: 1024px) {
+            .progress-header {
+                top: 0;
+            }
+            
+            .main-header {
+                padding-top: 6px;
+            }
+        }
+
+        /* ... (el resto de tu CSS existente se mantiene igual) ... */
+
+    </style>
+</head>
+<body>
+    <!-- ============================================
+         BARRA DE PROGRESO EN HEADER
+    ============================================ -->
+    <div class="progress-header" id="progressHeader">
+        <div class="progress-bar" id="globalProgressBar">
+            <div class="progress-percent" id="progressPercent">0%</div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MODAL DE NOTIFICACIONES
+    ============================================ -->
+    <div class="notification-modal" id="notificationModal">
+        <div class="notification-content">
+            <div class="notification-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <h3>Activar Recordatorios</h3>
+            <p>¿Querés recibir recordatorios diarios de tus tareas pendientes?</p>
+            <p><small>Te avisaremos todos los días a las 18:00 si tenés tareas sin completar.</small></p>
+            <div class="modal-actions">
+                <button class="header-btn" onclick="closeNotificationModal()">
+                    No, gracias
+                </button>
+                <button class="header-btn header-btn-primary" onclick="enableNotifications()">
+                    <i class="fas fa-bell"></i> Activar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         HEADER UNIVERSAL
+    ============================================ -->
+    <header class="main-header">
+        <div class="header-brand">
+            <div class="header-logo">
+                <i class="fas fa-bicycle"></i>
+            </div>
+            <div class="header-info">
+                <h1>BikeMaster Pro</h1>
+                <p>Checklist Mecánico Profesional • Leo Pary</p>
+            </div>
+        </div>
+
+        <div class="header-stats">
+            <div class="header-stat">
+                <div class="header-stat-number" id="totalTasks">0</div>
+                <div class="header-stat-label">Total</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-number" id="completedTasks">0</div>
+                <div class="header-stat-label">Completadas</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-number" id="pendingTasks">0</div>
+                <div class="header-stat-label">Pendientes</div>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button class="notification-bell" id="notificationBell" onclick="toggleNotifications()" title="Recordatorios">
+                <i class="fas fa-bell"></i>
+            </button>
+            <button class="header-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="header-btn" onclick="showAddTaskModal()">
+                <i class="fas fa-plus"></i> Nueva Tarea
+            </button>
+            <button class="header-btn header-btn-primary" onclick="exportChecklist()">
+                <i class="fas fa-file-export"></i> Exportar
+            </button>
+        </div>
+    </header>
+
+    <!-- ============================================
+         LAYOUT DESKTOP
+    ============================================ -->
+    <div class="app-container">
+        <!-- Sidebar Desktop -->
+        <aside class="desktop-sidebar" id="desktopSidebar">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left" id="sidebarToggleIcon"></i>
+            </button>
+            
+            <div class="sidebar-content">
+                <!-- BÚSQUEDA -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-search"></i> Buscar Tareas</h3>
+                    <div class="search-container">
+                        <input type="text" class="search-input" id="searchInput" 
+                               placeholder="Buscar por título o categoría...">
+                        <button class="search-clear" id="searchClear" onclick="clearSearch()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="search-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="search-results-info" id="searchResultsInfo">
+                            <span id="searchResultsCount">0</span> resultados encontrados
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TARJETAS DE PROGRESO POR CATEGORÍA -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-chart-bar"></i> Progreso por Categoría</h3>
+                    <div class="category-progress-cards" id="categoryProgressCards">
+                        <!-- Se generan dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-filter"></i> Filtros</h3>
+                    <div class="sidebar-filters">
+                        <button class="sidebar-filter active" onclick="filterTasks('all')">
+                            Todas las tareas
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('pending')">
+                            Pendientes
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('completed')">
+                            Completadas
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('high')">
+                            Prioridad Alta
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('today')">
+                            Agregadas Hoy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-bolt"></i> Acciones</h3>
+                    <div class="sidebar-actions">
+                        <button class="sidebar-btn sidebar-btn-primary" onclick="completeAll()">
+                            <i class="fas fa-check-double"></i> Completar Todo
+                        </button>
+                        <button class="sidebar-btn" onclick="resetAll()" style="color: var(--danger); border-color: var(--danger);">
+                            <i class="fas fa-redo"></i> Reiniciar Todo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Información -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-info-circle"></i> Información</h3>
+                    <div style="color: var(--gray); font-size: 0.9rem; line-height: 1.6;">
+                        <p><strong>Mecánico:</strong> Leo Pary</p>
+                        <p><strong>Total tareas:</strong> <span id="sidebarTotal">0</span></p>
+                        <p><strong>Completadas:</strong> <span id="sidebarCompleted">0</span></p>
+                        <p><strong>Progreso:</strong> <span id="sidebarProgress">0%</span></p>
+                        <p><strong>Recordatorios:</strong> <span id="notificationStatus">❌</span></p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="desktop-main" id="desktopMain">
+            <!-- Controles de Vista -->
+            <div class="view-controls">
+                <h2 class="view-title">Checklist de Preparación</h2>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setViewMode('grid')">
+                        <i class="fas fa-th-large"></i> Tarjetas
+                    </button>
+                    <button class="view-btn" onclick="setViewMode('list')">
+                        <i class="fas fa-list"></i> Lista
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista Grid (Default) -->
+            <div class="tasks-grid" id="tasksGrid">
+                <!-- Tareas en grid se renderizan aquí -->
+            </div>
+
+            <!-- Vista Lista -->
+            <div class="tasks-list" id="tasksList">
+                <!-- Tareas en lista se renderizan aquí -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================
+         MODAL NUEVA TAREA
+    ============================================ -->
+    <div class="modal" id="addTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agregar Nueva Tarea</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm" onsubmit="addNewTask(event)">
+                    <div class="form-group">
+                        <label for="taskTitle">Título de la tarea</label>
+                        <input type="text" id="taskTitle" class="form-control" 
+                               placeholder="Ej: Revisar presión de cubiertas" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskCategory">Categoría</label>
+                        <div class="select-wrapper">
+                            <select id="taskCategory" class="custom-select" required>
+                                <option value="">Seleccionar categoría</option>
+                                <option value="Ruedas">Ruedas</option>
+                                <option value="Frenos">Frenos</option>
+                                <option value="Transmisión">Transmisión</option>
+                                <option value="Seguridad">Seguridad</option>
+                                <option value="Equipo">Equipo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskPriority">Prioridad</label>
+                        <div class="select-wrapper">
+                            <select id="taskPriority" class="custom-select" required>
+                                <option value="high">Alta (Crítica)</option>
+                                <option value="medium" selected>Media (Importante)</option>
+                                <option value="low">Baja (Rutina)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="header-btn" onclick="closeModal()" style="flex: 1;">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="header-btn header-btn-primary" style="flex: 1;">
+                            Agregar Tarea
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN NOTIFICACIONES
+        // ============================================
+        const STORAGE_KEY = 'bikemaster_desktop_v4';
+        const VIEW_MODE_KEY = 'bikemaster_view_mode';
+        const SIDEBAR_STATE_KEY = 'bikemaster_sidebar_state';
+        const NOTIFICATIONS_KEY = 'bikemaster_notifications';
+        const SEARCH_KEY = 'bikemaster_last_search';
+        
+        // Estado global
+        const state = {
+            tasks: [],
+            filter: 'all',
+            viewMode: 'grid',
+            sidebarCollapsed: false,
+            isMobile: window.innerWidth <= 1024,
+            notificationsEnabled: false,
+            notificationTimer: null,
+            currentSearch: '',
+            searchActive: false
+        };
+
+        // Tareas por defecto
+        const defaultTasks = [
+            { id: 'u_pression', title: 'Presión de aire y estado de cubiertas', category: 'Ruedas', priority: 'high', completed: false },
+            { id: 'u_qr', title: 'Cierres rápidos o tuercas ajustadas', category: 'Ruedas', priority: 'high', completed: false },
+            { id: 'u_spokes', title: 'Tensión de rayos uniforme', category: 'Ruedas', priority: 'medium', completed: false },
+            { id: 'u_truing', title: 'Centrado de ruedas (truing)', category: 'Ruedas', priority: 'medium', completed: false },
+            { id: 'u_brakes', title: 'Pastillas/Zapatas y frenado efectivo', category: 'Frenos', priority: 'high', completed: false },
+            { id: 'u_brake_cables', title: 'Ajuste de cables y herrajes', category: 'Frenos', priority: 'medium', completed: false },
+            { id: 'u_brake_pads', title: 'Desgaste de pastillas y alineación', category: 'Frenos', priority: 'high', completed: false },
+            { id: 'u_chain', title: 'Cadena limpia y lubricada', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_chain_wear', title: 'Desgaste de cadena (medición)', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_gears', title: 'Cambios pasan correctamente', category: 'Transmisión', priority: 'high', completed: false },
+            { id: 'u_derailleur', title: 'Alineación y límites del derailleur', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_cassette', title: 'Desgaste de cassette y platos', category: 'Transmisión', priority: 'low', completed: false },
+            { id: 'u_bolts', title: 'Ajuste de stem y manubrio', category: 'Seguridad', priority: 'high', completed: false },
+            { id: 'u_saddle', title: 'Tija y sillín ajustados', category: 'Seguridad', priority: 'medium', completed: false },
+            { id: 'u_pedals', title: 'Pedales y calas (si aplica)', category: 'Seguridad', priority: 'medium', completed: false },
+            { id: 'u_bearings', title: 'Rodamientos (ruedas, pedales, dirección)', category: 'Seguridad', priority: 'low', completed: false },
+            { id: 'u_headset', title: 'Headset sin juego', category: 'Seguridad', priority: 'high', completed: false },
+            { id: 'u_lights', title: 'Luces delanteras y traseras', category: 'Equipo', priority: 'high', completed: false },
+            { id: 'u_helmet', title: 'Casco en condiciones', category: 'Equipo', priority: 'high', completed: false },
+            { id: 'u_tools', title: 'Kit de herramientas y repuestos', category: 'Equipo', priority: 'medium', completed: false },
+            { id: 'u_hydration', title: 'Hidratación y alimentos', category: 'Equipo', priority: 'medium', completed: false },
+            { id: 'u_phone', title: 'Teléfono cargado y seguro', category: 'Equipo', priority: 'medium', completed: false }
+        ];
+
+        // ============================================
+        // SISTEMA DE BÚSQUEDA
+        // ============================================
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            
+            // Cargar última búsqueda
+            const lastSearch = localStorage.getItem(SEARCH_KEY);
+            if (lastSearch) {
+                searchInput.value = lastSearch;
+                state.currentSearch = lastSearch;
+                performSearch(lastSearch);
+            }
+            
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                state.currentSearch = query;
+                
+                if (query.length > 0) {
+                    searchClear.style.display = 'block';
+                    searchClear.title = `Limpiar búsqueda: "${query}"`;
+                    state.searchActive = true;
+                } else {
+                    searchClear.style.display = 'none';
+                    state.searchActive = false;
+                    clearSearch();
+                    return;
+                }
+                
+                performSearch(query);
+                localStorage.setItem(SEARCH_KEY, query);
+            });
+            
+            // Buscar con Enter
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = searchInput.value.trim();
+                    if (query.length > 2) {
+                        performSearch(query);
+                        showToast(`🔍 Buscando: "${query}"`);
+                    }
+                }
+            });
+            
+            // Clear al hacer clic en la X
+            searchClear.addEventListener('click', clearSearch);
+        }
+
+        function performSearch(query) {
+            if (!query || query.length < 1) {
+                clearSearch();
+                return;
+            }
+            
+            query = query.toLowerCase();
+            state.currentSearch = query;
+            
+            // Filtrar tareas
+            const searchResults = state.tasks.filter(task => 
+                task.title.toLowerCase().includes(query) || 
+                task.category.toLowerCase().includes(query) ||
+                task.priority.toLowerCase().includes(query)
+            );
+            
+            // Actualizar UI de resultados
+            const resultsInfo = document.getElementById('searchResultsInfo');
+            const resultsCount = document.getElementById('searchResultsCount');
+            
+            resultsCount.textContent = searchResults.length;
+            resultsInfo.classList.add('show');
+            
+            if (searchResults.length === 0) {
+                resultsInfo.style.color = 'var(--warning)';
+                resultsInfo.innerHTML = `<span>0</span> resultados para "<strong>${query}</strong>"`;
+            } else {
+                resultsInfo.style.color = 'var(--primary)';
+                resultsInfo.innerHTML = `<span>${searchResults.length}</span> resultado${searchResults.length !== 1 ? 's' : ''} para "<strong>${query}</strong>"`;
+            }
+            
+            // Si hay búsqueda activa, renderizar solo resultados
+            if (state.searchActive) {
+                renderSearchResults(searchResults);
+            }
+        }
+
+        function renderSearchResults(results) {
+            // Sobrescribir el render normal con resultados de búsqueda
+            const container = state.viewMode === 'grid' 
+                ? document.getElementById('tasksGrid') 
+                : document.getElementById('tasksList');
+                
+            if (!container) return;
+            
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No se encontraron resultados</h3>
+                        <p>Intenta con otros términos de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (state.viewMode === 'grid') {
+                const html = results.map(task => `
+                    <div class="task-card ${task.completed ? 'completed' : ''}" 
+                         onclick="toggleTask('${task.id}', event)">
+                        <div class="task-card-header">
+                            <div class="task-card-checkbox ${task.completed ? 'checked' : ''}"></div>
+                            <div class="task-card-category">${task.category}</div>
+                        </div>
+                        <div class="task-card-title">
+                            ${highlightSearchTerm(task.title, state.currentSearch)}
+                        </div>
+                        <div class="task-card-footer">
+                            <span class="task-card-priority priority-${task.priority}">
+                                ${getPriorityLabel(task.priority)}
+                            </span>
+                            <small style="color: var(--gray);">
+                                ${task.completed ? '✓ Completada' : '⏳ Pendiente'}
+                            </small>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+                container.style.display = 'grid';
+                document.getElementById('tasksList').style.display = 'none';
+            } else {
+                // Vista lista para resultados
+                const html = `
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <i class="fas fa-search"></i>
+                                Resultados de búsqueda
+                            </div>
+                            <div class="category-stats">
+                                ${results.length} tareas
+                            </div>
+                        </div>
+                        <div class="category-content">
+                            ${results.map(task => `
+                                <div class="task-item ${task.completed ? 'completed' : ''}" 
+                                     onclick="toggleTask('${task.id}', event)">
+                                    <div class="task-checkbox ${task.completed ? 'checked' : ''}"></div>
+                                    <div class="task-content">
+                                        <div class="task-title">
+                                            ${highlightSearchTerm(task.title, state.currentSearch)}
+                                        </div>
+                                        <div class="task-meta">
+                                            <span>${task.category}</span> • 
+                                            <span class="task-priority priority-${task.priority}">
+                                                ${getPriorityLabel(task.priority)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+                container.style.display = 'block';
+                document.getElementById('tasksGrid').style.display = 'none';
+            }
+        }
+
+        function highlightSearchTerm(text, query) {
+            if (!query || query.length < 1) return text;
+            
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<mark style="background: rgba(59, 130, 246, 0.3); padding: 2px 4px; border-radius: 4px;">$1</mark>');
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            const resultsInfo = document.getElementById('searchResultsInfo');
+            
+            searchInput.value = '';
+            searchClear.style.display = 'none';
+            resultsInfo.classList.remove('show');
+            
+            state.currentSearch = '';
+            state.searchActive = false;
+            
+            localStorage.removeItem(SEARCH_KEY);
+            
+            // Volver al render normal
+            renderTasks();
+        }
+
+        // ============================================
+        // SISTEMA DE PROGRESO VISUAL
+        // ============================================
+        function updateProgressUI() {
+            const total = state.tasks.length;
+            const completed = state.tasks.filter(t => t.completed).length;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            // Barra de progreso general
+            const progressBar = document.getElementById('globalProgressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                
+                // Cambiar color según progreso
+                if (progress === 100) {
+                    progressBar.style.background = 'linear-gradient(90deg, var(--secondary), #0ea5e9)';
+                } else if (progress > 70) {
+                    progressBar.style.background = 'linear-gradient(90deg, var(--primary), var(--secondary))';
+                } else if (progress > 30) {
+                    progressBar.style.background = 'linear-gradient(90deg, var(--warning), var(--primary))';
+                } else {
+                    progressBar.style.background = 'linear-gradient(90deg, var(--danger), var(--warning))';
+                }
+            }
+            
+            // Tarjetas de progreso por categoría
+            updateCategoryProgressCards();
+        }
+
+        function updateCategoryProgressCards() {
+            const categories = {};
+            
+            // Agrupar tareas por categoría
+            state.tasks.forEach(task => {
+                if (!categories[task.category]) {
+                    categories[task.category] = {
+                        total: 0,
+                        completed: 0,
+                        tasks: []
+                    };
+                }
+                categories[task.category].total++;
+                if (task.completed) {
+                    categories[task.category].completed++;
+                }
+                categories[task.category].tasks.push(task);
+            });
+            
+            const container = document.getElementById('categoryProgressCards');
+            if (!container) return;
+            
+            let html = '';
+            
+            for (const [category, data] of Object.entries(categories)) {
+                const percent = Math.round((data.completed / data.total) * 100);
+                const icon = getCategoryIcon(category);
+                
+                html += `
+                    <div class="category-progress-card" onclick="filterByCategory('${category}')">
+                        <div class="category-progress-header">
+                            <div class="category-name">
+                                <i class="fas ${icon}"></i>
+                                ${category}
+                            </div>
+                            <div class="category-percent">${percent}%</div>
+                        </div>
+                        <div class="category-progress-bar">
+                            <div class="category-progress-fill" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="category-stats">
+                            <span>${data.completed}/${data.total} completadas</span>
+                            <span>${data.total - data.completed} pendientes</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function filterByCategory(category) {
+            // Filtrar tareas por categoría
+            state.filter = 'all';
+            state.currentSearch = category;
+            document.getElementById('searchInput').value = category;
+            
+            // Activar búsqueda para esa categoría
+            state.searchActive = true;
+            performSearch(category);
+            
+            showToast(`🔍 Filtrado por: ${category}`);
+        }
+
+        // ============================================
+        // INICIALIZACIÓN MEJORADA
+        // ============================================
+        function init() {
+            console.log('🚀 Iniciando BikeMaster con Progreso + Búsqueda...');
+            
+            // Cargar estado
+            loadState();
+            
+            // Check viewport
+            checkViewport();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Setup búsqueda
+            setupSearch();
+            
+            // Render inicial
+            renderTasks();
+            updateStats();
+            
+            // Actualizar UI de progreso
+            updateProgressUI();
+            
+            // Actualizar UI de notificaciones
+            updateNotificationUI();
+            
+            // Programar recordatorio si están activadas
+            if (state.notificationsEnabled) {
+                setupDailyReminder();
+            }
+            
+            console.log(`✅ App lista - Progreso: ${Math.round((state.tasks.filter(t => t.completed).length / state.tasks.length) * 100)}%`);
+        }
+
+        function loadState() {
+            // Cargar tasks
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                state.tasks = saved ? JSON.parse(saved) : [...defaultTasks];
+            } catch (e) {
+                console.warn('Error cargando tasks:', e);
+                state.tasks = [...defaultTasks];
+            }
+            
+            // Cargar view mode
+            const savedViewMode = localStorage.getItem(VIEW_MODE_KEY);
+            if (savedViewMode && ['grid', 'list'].includes(savedViewMode)) {
+                state.viewMode = savedViewMode;
+            }
+            
+            // Cargar sidebar state
+            const savedSidebarState = localStorage.getItem(SIDEBAR_STATE_KEY);
+            if (savedSidebarState) {
+                state.sidebarCollapsed = JSON.parse(savedSidebarState);
+            }
+            
+            // Cargar estado de notificaciones
+            const savedNotifications = localStorage.getItem(NOTIFICATIONS_KEY);
+            state.notificationsEnabled = savedNotifications === 'true';
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
+                localStorage.setItem(VIEW_MODE_KEY, state.viewMode);
+                localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(state.sidebarCollapsed));
+            } catch (e) {
+                console.error('Error guardando estado:', e);
+            }
+        }
+
+        // ============================================
+        // FUNCIONES ACTUALIZADAS
+        // ============================================
+        function toggleTask(taskId, event) {
+            event.stopPropagation();
+            
+            const taskIndex = state.tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            // Toggle estado
+            state.tasks[taskIndex].completed = !state.tasks[taskIndex].completed;
+            
+            // Feedback visual
+            const element = event.currentTarget;
+            element.classList.toggle('completed');
+            
+            const checkbox = element.querySelector('.task-checkbox') || 
+                            element.querySelector('.task-card-checkbox');
+            if (checkbox) {
+                checkbox.classList.toggle('checked');
+                checkbox.classList.add('checked');
+                setTimeout(() => checkbox.classList.remove('checked'), 300);
+            }
+            
+            // Actualizar stats y progreso
+            updateStats();
+            updateProgressUI();
+            
+            // Guardar
+            saveState();
+            
+            // Verificar si completar todas dispara notificación
+            const allCompleted = state.tasks.every(t => t.completed);
+            if (allCompleted && state.notificationsEnabled) {
+                showToast('🎉 ¡Todas las tareas completadas! La bici está lista', 'success');
+            }
+        }
+
+        function updateStats() {
+            const total = state.tasks.length;
+            const completed = state.tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('pendingTasks').textContent = pending;
+            
+            document.getElementById('sidebarTotal').textContent = total;
+            document.getElementById('sidebarCompleted').textContent = completed;
+            document.getElementById('sidebarProgress').textContent = `${progress}%`;
+        }
+
+        // ============================================
+        // EXPORT FUNCIONES AL GLOBAL SCOPE
+        // ============================================
+        window.toggleTask = toggleTask;
+        window.filterTasks = filterTasks;
+        window.setViewMode = setViewMode;
+        window.toggleSidebar = toggleSidebar;
+        window.toggleCategory = toggleCategory;
+        window.showAddTaskModal = showAddTaskModal;
+        window.closeModal = closeModal;
+        window.addNewTask = addNewTask;
+        window.completeAll = completeAll;
+        window.resetAll = resetAll;
+        window.exportChecklist = exportChecklist;
+        window.toggleNotifications = toggleNotifications;
+        window.enableNotifications = enableNotifications;
+        window.closeNotificationModal = closeNotificationModal;
+        window.clearSearch = clearSearch;
+        window.filterByCategory = filterByCategory;
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            setTimeout(init, 100);
+        }
+
+        // (Las funciones de notificaciones se mantienen igual que antes)
+        // ... código de notificaciones ...
+    </script>
+</body>
+</html>

@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BikeMaster Pro - Leo Pary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ============================================
+           RESET BÁSICO Y VARIABLES
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           HEADER FIXED - SIMPLIFICADO
+        ============================================ */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background-color: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .header-info h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--light);
+            margin-bottom: 3px;
+        }
+
+        .header-info p {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 25px;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .header-stat-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        /* ============================================
+           BARRA DE PROGRESO
+        ============================================ */
+        .progress-header {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            z-index: 999;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-percent {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        /* ============================================
+           LAYOUT PRINCIPAL
+        ============================================ */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 74px; /* Header + progress bar */
+        }
+
+        /* ============================================
+           SIDEBAR IZQUIERDO
+        ============================================ */
+        .desktop-sidebar {
+            width: 280px;
+            background-color: var(--dark);
+            border-right: 1px solid var(--card-border);
+            position: fixed;
+            top: 74px;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* BÚSQUEDA */
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* FILTROS */
+        .sidebar-filters {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-filter {
+            padding: 10px 15px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--gray);
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-filter:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-filter.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* PROGRESO POR CATEGORÍA */
+        .category-progress-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .category-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .category-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-percent {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .category-progress-bar {
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-bottom: 4px;
+            overflow: hidden;
+        }
+
+        .category-progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        .category-stats {
+            font-size: 0.7rem;
+            color: var(--gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ACCIONES */
+        .sidebar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-btn {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .sidebar-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        /* INFORMACIÓN */
+        .info-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           CONTENIDO PRINCIPAL
+        ============================================ */
+        .desktop-main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+            background-color: var(--dark);
+            min-height: calc(100vh - 74px);
+        }
+
+        .view-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .view-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid var(--card-border);
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: transparent;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* ============================================
+           VISTA GRID (TARJETAS)
+        ============================================ */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .task-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-card.completed {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .task-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .task-card-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: 2px solid var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-card.completed .task-card-checkbox {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .task-card.completed .task-card-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .task-card-category {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .task-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+
+        .task-card.completed .task-card-title {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .task-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .task-card-priority {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .priority-high {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+        }
+
+        /* ============================================
+           VISTA LISTA
+        ============================================ */
+        .tasks-list {
+            display: none;
+        }
+
+        .category-section {
+            margin-bottom: 25px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .category-stats {
+            font-size: 0.85rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .task-item {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            border-color: var(--primary);
+        }
+
+        .task-item.completed {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 2px solid var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-item.completed .task-checkbox {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .task-item.completed .task-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--light);
+            font-size: 0.95rem;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* ============================================
+           RESPONSIVE - MOBILE
+        ============================================ */
+        @media (max-width: 1024px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .desktop-main {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .main-header {
+                position: relative;
+                height: auto;
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-stats {
+                order: 3;
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .header-actions {
+                order: 2;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .header-brand {
+                order: 1;
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .app-container {
+                padding-top: 0;
+                flex-direction: column;
+            }
+            
+            .tasks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-header {
+                top: 0;
+            }
+        }
+
+        /* ============================================
+           ESTADOS VACÍOS Y UTILIDADES
+        ============================================ */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--light);
+            font-size: 1.3rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- BARRA DE PROGRESO -->
+    <div class="progress-header">
+        <div class="progress-bar" id="globalProgressBar">
+            <div class="progress-percent" id="progressPercent">0%</div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="main-header">
+        <div class="header-brand">
+            <div class="header-logo">
+                <i class="fas fa-bicycle"></i>
+            </div>
+            <div class="header-info">
+                <h1>BikeMaster Pro</h1>
+                <p>Checklist Mecánico Profesional • Leo Pary</p>
+            </div>
+        </div>
+
+        <div class="header-stats">
+            <div class="header-stat">
+                <div class="header-stat-number" id="totalTasks">0</div>
+                <div class="header-stat-label">Total</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-number" id="completedTasks">0</div>
+                <div class="header-stat-label">Completadas</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-number" id="pendingTasks">0</div>
+                <div class="header-stat-label">Pendientes</div>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button class="header-btn" onclick="showAddTaskModal()">
+                <i class="fas fa-plus"></i> Nueva Tarea
+            </button>
+            <button class="header-btn header-btn-primary" onclick="exportChecklist()">
+                <i class="fas fa-file-export"></i> Exportar
+            </button>
+        </div>
+    </header>
+
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="desktop-sidebar">
+            <!-- BÚSQUEDA -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-search"></i> Buscar Tareas</h3>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" 
+                           placeholder="Buscar por título o categoría...">
+                </div>
+            </div>
+
+            <!-- PROGRESO POR CATEGORÍA -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-chart-bar"></i> Progreso por Categoría</h3>
+                <div class="category-progress-cards" id="categoryProgressCards">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-filter"></i> Filtros</h3>
+                <div class="sidebar-filters">
+                    <button class="sidebar-filter active" onclick="filterTasks('all')">
+                        Todas las tareas
+                    </button>
+                    <button class="sidebar-filter" onclick="filterTasks('pending')">
+                        Pendientes
+                    </button>
+                    <button class="sidebar-filter" onclick="filterTasks('completed')">
+                        Completadas
+                    </button>
+                    <button class="sidebar-filter" onclick="filterTasks('high')">
+                        Prioridad Alta
+                    </button>
+                </div>
+            </div>
+
+            <!-- ACCIONES -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-bolt"></i> Acciones</h3>
+                <div class="sidebar-actions">
+                    <button class="sidebar-btn sidebar-btn-primary" onclick="completeAll()">
+                        <i class="fas fa-check-double"></i> Completar Todo
+                    </button>
+                    <button class="sidebar-btn" onclick="resetAll()" style="color: var(--danger);">
+                        <i class="fas fa-redo"></i> Reiniciar Todo
+                    </button>
+                </div>
+            </div>
+
+            <!-- INFORMACIÓN -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-info-circle"></i> Información</h3>
+                <div class="info-text">
+                    <p><strong>Mecánico:</strong> Leo Pary</p>
+                    <p><strong>Total tareas:</strong> <span id="sidebarTotal">0</span></p>
+                    <p><strong>Completadas:</strong> <span id="sidebarCompleted">0</span></p>
+                    <p><strong>Progreso:</strong> <span id="sidebarProgress">0%</span></p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="desktop-main">
+            <!-- CONTROLES DE VISTA -->
+            <div class="view-controls">
+                <h2 class="view-title">Checklist de Preparación</h2>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setViewMode('grid')">
+                        <i class="fas fa-th-large"></i> Tarjetas
+                    </button>
+                    <button class="view-btn" onclick="setViewMode('list')">
+                        <i class="fas fa-list"></i> Lista
+                    </button>
+                </div>
+            </div>
+
+            <!-- VISTA GRID -->
+            <div class="tasks-grid" id="tasksGrid">
+                <!-- Tareas se renderizan aquí -->
+            </div>
+
+            <!-- VISTA LISTA -->
+            <div class="tasks-list" id="tasksList">
+                <!-- Tareas se renderizan aquí -->
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL NUEVA TAREA (SIMPLIFICADO) -->
+    <div class="modal" id="addTaskModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: var(--card-bg); border-radius: 10px; padding: 30px; width: 90%; max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--light);">Agregar Nueva Tarea</h3>
+                <button onclick="closeModal()" style="background: none; border: none; color: var(--gray); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <form id="taskForm" onsubmit="addNewTask(event)">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--light); font-weight: 600;">Título de la tarea</label>
+                    <input type="text" id="taskTitle" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 8px; color: var(--light);" placeholder="Ej: Revisar presión de cubiertas" required>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--light); font-weight: 600;">Categoría</label>
+                    <select id="taskCategory" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 8px; color: var(--light);" required>
+                        <option value="">Seleccionar categoría</option>
+                        <option value="Ruedas">Ruedas</option>
+                        <option value="Frenos">Frenos</option>
+                        <option value="Transmisión">Transmisión</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Equipo">Equipo</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--light); font-weight: 600;">Prioridad</label>
+                    <select id="taskPriority" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 8px; color: var(--light);" required>
+                        <option value="high">Alta (Crítica)</option>
+                        <option value="medium" selected>Media (Importante)</option>
+                        <option value="low">Baja (Rutina)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <button type="button" onclick="closeModal()" style="flex: 1; padding: 12px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.05); color: var(--light); border-radius: 8px; cursor: pointer;">Cancelar</button>
+                    <button type="submit" style="flex: 1; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Agregar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN SIMPLIFICADA
+        // ============================================
+        const STORAGE_KEY = 'bikemaster_simple';
+        
+        const state = {
+            tasks: [],
+            filter: 'all',
+            viewMode: 'grid',
+            currentSearch: ''
+        };
+
+        const defaultTasks = [
+            { id: 'u_pression', title: 'Presión de aire y estado de cubiertas', category: 'Ruedas', priority: 'high', completed: false },
+            { id: 'u_qr', title: 'Cierres rápidos o tuercas ajustadas', category: 'Ruedas', priority: 'high', completed: false },
+            { id: 'u_spokes', title: 'Tensión de rayos uniforme', category: 'Ruedas', priority: 'medium', completed: false },
+            { id: 'u_truing', title: 'Centrado de ruedas (truing)', category: 'Ruedas', priority: 'medium', completed: false },
+            { id: 'u_brakes', title: 'Pastillas/Zapatas y frenado efectivo', category: 'Frenos', priority: 'high', completed: false },
+            { id: 'u_brake_cables', title: 'Ajuste de cables y herrajes', category: 'Frenos', priority: 'medium', completed: false },
+            { id: 'u_brake_pads', title: 'Desgaste de pastillas y alineación', category: 'Frenos', priority: 'high', completed: false },
+            { id: 'u_chain', title: 'Cadena limpia y lubricada', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_chain_wear', title: 'Desgaste de cadena (medición)', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_gears', title: 'Cambios pasan correctamente', category: 'Transmisión', priority: 'high', completed: false },
+            { id: 'u_derailleur', title: 'Alineación y límites del derailleur', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_cassette', title: 'Desgaste de cassette y platos', category: 'Transmisión', priority: 'low', completed: false },
+            { id: 'u_bolts', title: 'Ajuste de stem y manubrio', category: 'Seguridad', priority: 'high', completed: false },
+            { id: 'u_saddle', title: 'Tija y sillín ajustados', category: 'Seguridad', priority: 'medium', completed: false },
+            { id: 'u_pedals', title: 'Pedales y calas (si aplica)', category: 'Seguridad', priority: 'medium', completed: false },
+            { id: 'u_bearings', title: 'Rodamientos (ruedas, pedales, dirección)', category: 'Seguridad', priority: 'low', completed: false },
+            { id: 'u_headset', title: 'Headset sin juego', category: 'Seguridad', priority: 'high', completed: false },
+            { id: 'u_lights', title: 'Luces delanteras y traseras', category: 'Equipo', priority: 'high', completed: false },
+            { id: 'u_helmet', title: 'Casco en condiciones', category: 'Equipo', priority: 'high', completed: false },
+            { id: 'u_tools', title: 'Kit de herramientas y repuestos', category: 'Equipo', priority: 'medium', completed: false },
+            { id: 'u_hydration', title: 'Hidratación y alimentos', category: 'Equipo', priority: 'medium', completed: false },
+            { id: 'u_phone', title: 'Teléfono cargado y seguro', category: 'Equipo', priority: 'medium', completed: false }
+        ];
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        function init() {
+            loadState();
+            setupSearch();
+            renderTasks();
+            updateStats();
+            updateProgressUI();
+            
+            // Setup búsqueda
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                performSearch(e.target.value);
+            });
+        }
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                state.tasks = saved ? JSON.parse(saved) : [...defaultTasks];
+            } catch {
+                state.tasks = [...defaultTasks];
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
+        }
+
+        // ============================================
+        // RENDERIZADO
+        // ============================================
+        function renderTasks() {
+            const filteredTasks = getFilteredTasks();
+            
+            if (state.viewMode === 'grid') {
+                renderGridView(filteredTasks);
+            } else {
+                renderListView(filteredTasks);
+            }
+            
+            updateActiveFilters();
+            updateCategoryProgressCards();
+        }
+
+        function renderGridView(tasks) {
+            const container = document.getElementById('tasksGrid');
+            if (!container) return;
+            
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-clipboard-list"></i><h3>No hay tareas para mostrar</h3></div>';
+                return;
+            }
+            
+            const html = tasks.map(task => `
+                <div class="task-card ${task.completed ? 'completed' : ''}" onclick="toggleTask('${task.id}', event)">
+                    <div class="task-card-header">
+                        <div class="task-card-checkbox"></div>
+                        <div class="task-card-category">${task.category}</div>
+                    </div>
+                    <div class="task-card-title">${task.title}</div>
+                    <div class="task-card-footer">
+                        <span class="task-card-priority priority-${task.priority}">
+                            ${getPriorityLabel(task.priority)}
+                        </span>
+                        <small style="color: var(--gray);">
+                            ${task.completed ? '✓ Completada' : '⏳ Pendiente'}
+                        </small>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+            container.style.display = 'grid';
+            document.getElementById('tasksList').style.display = 'none';
+        }
+
+        function renderListView(tasks) {
+            const container = document.getElementById('tasksList');
+            if (!container) return;
+            
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-clipboard-list"></i><h3>No hay tareas para mostrar</h3></div>';
+                return;
+            }
+            
+            const categories = {};
+            tasks.forEach(task => {
+                if (!categories[task.category]) {
+                    categories[task.category] = [];
+                }
+                categories[task.category].push(task);
+            });
+            
+            let html = '';
+            for (const [category, catTasks] of Object.entries(categories)) {
+                const completed = catTasks.filter(t => t.completed).length;
+                
+                html += `
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <i class="fas fa-${getCategoryIcon(category)}"></i>
+                                ${category}
+                            </div>
+                            <div class="category-stats">
+                                ${completed}/${catTasks.length}
+                            </div>
+                        </div>
+                        <div class="category-content">
+                            ${catTasks.map(task => `
+                                <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTask('${task.id}', event)">
+                                    <div class="task-checkbox"></div>
+                                    <div class="task-content">
+                                        <div class="task-title">${task.title}</div>
+                                        <div class="task-meta">
+                                            <span class="priority-${task.priority}">${getPriorityLabel(task.priority)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+            container.style.display = 'block';
+            document.getElementById('tasksGrid').style.display = 'none';
+        }
+
+        // ============================================
+        // FUNCIONES PRINCIPALES
+        // ============================================
+        function toggleTask(taskId, event) {
+            event.stopPropagation();
+            
+            const task = state.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            task.completed = !task.completed;
+            saveState();
+            renderTasks();
+            updateStats();
+            updateProgressUI();
+        }
+
+        function filterTasks(filterType) {
+            state.filter = filterType;
+            renderTasks();
+        }
+
+        function getFilteredTasks() {
+            let filtered = [...state.tasks];
+            
+            // Aplicar filtro
+            switch (state.filter) {
+                case 'pending': filtered = filtered.filter(t => !t.completed); break;
+                case 'completed': filtered = filtered.filter(t => t.completed); break;
+                case 'high': filtered = filtered.filter(t => t.priority === 'high'); break;
+            }
+            
+            // Aplicar búsqueda si existe
+            if (state.currentSearch) {
+                const query = state.currentSearch.toLowerCase();
+                filtered = filtered.filter(task => 
+                    task.title.toLowerCase().includes(query) || 
+                    task.category.toLowerCase().includes(query)
+                );
+            }
+            
+            return filtered;
+        }
+
+        // ============================================
+        // PROGRESO Y STATS
+        // ============================================
+        function updateStats() {
+            const total = state.tasks.length;
+            const completed = state.tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+            
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('pendingTasks').textContent = pending;
+            
+            document.getElementById('sidebarTotal').textContent = total;
+            document.getElementById('sidebarCompleted').textContent = completed;
+            document.getElementById('sidebarProgress').textContent = total > 0 ? Math.round((completed / total) * 100) + '%' : '0%';
+        }
+
+        function updateProgressUI() {
+            const total = state.tasks.length;
+            const completed = state.tasks.filter(t => t.completed).length;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            const progressBar = document.getElementById('globalProgressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+            }
+        }
+
+        function updateCategoryProgressCards() {
+            const categories = {};
+            
+            state.tasks.forEach(task => {
+                if (!categories[task.category]) {
+                    categories[task.category] = { total: 0, completed: 0 };
+                }
+                categories[task.category].total++;
+                if (task.completed) {
+                    categories[task.category].completed++;
+                }
+            });
+            
+            const container = document.getElementById('categoryProgressCards');
+            if (!container) return;
+            
+            let html = '';
+            
+            for (const [category, data] of Object.entries(categories)) {
+                const percent = Math.round((data.completed / data.total) * 100);
+                
+                html += `
+                    <div class="category-progress-card" onclick="filterByCategory('${category}')">
+                        <div class="category-progress-header">
+                            <div class="category-name">
+                                <i class="fas fa-${getCategoryIcon(category)}"></i>
+                                ${category}
+                            </div>
+                            <div class="category-percent">${percent}%</div>
+                        </div>
+                        <div class="category-progress-bar">
+                            <div class="category-progress-fill" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="category-stats">
+                            <span>${data.completed}/${data.total} completadas</span>
+                            <span>${data.total - data.completed} pendientes</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // BÚSQUEDA
+        // ============================================
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                performSearch(e.target.value);
+            });
+        }
+
+        function performSearch(query) {
+            state.currentSearch = query.trim();
+            renderTasks();
+        }
+
+        function filterByCategory(category) {
+            document.getElementById('searchInput').value = category;
+            performSearch(category);
+        }
+
+        // ============================================
+        // VISTAS Y UI
+        // ============================================
+        function setViewMode(mode) {
+            state.viewMode = mode;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(mode === 'grid' ? 'Tarjetas' : 'Lista')) {
+                    btn.classList.add('active');
+                }
+            });
+            renderTasks();
+        }
+
+        function updateActiveFilters() {
+            document.querySelectorAll('.sidebar-filter').forEach(btn => {
+                btn.classList.remove('active');
+                const filterType = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+                if (filterType === state.filter) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // ============================================
+        // ACCIONES
+        // ============================================
+        function showAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'flex';
+            document.getElementById('taskTitle').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('addTaskModal').style.display = 'none';
+            document.getElementById('taskForm').reset();
+        }
+
+        function addNewTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value.trim();
+            const category = document.getElementById('taskCategory').value;
+            const priority = document.getElementById('taskPriority').value;
+            
+            if (!title || !category) return;
+            
+            const newTask = {
+                id: 'task_' + Date.now(),
+                title: title,
+                category: category,
+                priority: priority,
+                completed: false
+            };
+            
+            state.tasks.unshift(newTask);
+            saveState();
+            renderTasks();
+            updateStats();
+            updateProgressUI();
+            closeModal();
+            alert('✅ Tarea agregada');
+        }
+
+        function completeAll() {
+            if (!confirm('¿Marcar TODAS las tareas como completadas?')) return;
+            
+            state.tasks.forEach(task => {
+                task.completed = true;
+            });
+            
+            saveState();
+            renderTasks();
+            updateStats();
+            updateProgressUI();
+            alert('🎉 ¡Todas las tareas completadas!');
+        }
+
+        function resetAll() {
+            if (!confirm('¿Reiniciar TODO el progreso?')) return;
+            
+            state.tasks.forEach(task => {
+                task.completed = false;
+            });
+            
+            saveState();
+            renderTasks();
+            updateStats();
+            updateProgressUI();
+            alert('🔄 Progreso reiniciado');
+        }
+
+        function exportChecklist() {
+            const data = {
+                checklist: state.tasks,
+                summary: {
+                    total: state.tasks.length,
+                    completed: state.tasks.filter(t => t.completed).length,
+                    progress: Math.round((state.tasks.filter(t => t.completed).length / state.tasks.length) * 100) || 0
+                },
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', `checklist-bici-${new Date().toISOString().split('T')[0]}.json`);
+            link.click();
+            alert('📤 Checklist exportado');
+        }
+
+        // ============================================
+        // UTILIDADES
+        // ============================================
+        function getCategoryIcon(category) {
+            const icons = {
+                'Ruedas': 'tire',
+                'Frenos': 'hand-paper',
+                'Transmisión': 'cogs',
+                'Seguridad': 'shield-alt',
+                'Equipo': 'tools'
+            };
+            return icons[category] || 'circle';
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = { high: 'Alta', medium: 'Media', low: 'Baja' };
+            return labels[priority];
+        }
+
+        // ============================================
+        // EXPORT FUNCIONES
+        // ============================================
+        window.toggleTask = toggleTask;
+        window.filterTasks = filterTasks;
+        window.setViewMode = setViewMode;
+        window.showAddTaskModal = showAddTaskModal;
+        window.closeModal = closeModal;
+        window.addNewTask = addNewTask;
+        window.completeAll = completeAll;
+        window.resetAll = resetAll;
+        window.exportChecklist = exportChecklist;
+        window.filterByCategory = filterByCategory;
+
+        // INICIAR
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
