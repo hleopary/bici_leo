@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BikeMaster Pro - Leo Pary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ============================================
+           VARIABLES Y RESET
+        ============================================ */
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #cbd5e1;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --card-bg: rgba(30, 41, 59, 0.95);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --header-height: 80px;
+            --sidebar-width: 300px;
+            --sidebar-collapsed: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           LAYOUT DESKTOP PRINCIPAL
+        ============================================ */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: var(--header-height);
+        }
+
+        /* ============================================
+           HEADER UNIVERSAL
+        ============================================ */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .header-info h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--light);
+            margin-bottom: 4px;
+        }
+
+        .header-info p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .header-stat {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .header-stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .header-stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid var(--card-border);
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .header-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        .header-btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #1e40af);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ============================================
+           SIDEBAR DESKTOP
+        ============================================ */
+        .desktop-sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-right: 1px solid var(--card-border);
+            position: fixed;
+            top: var(--header-height);
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            z-index: 900;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .desktop-sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 20px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 950;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .sidebar-content {
+            padding: 30px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .desktop-sidebar.collapsed .sidebar-content {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-filters {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-filter {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .sidebar-filter:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-filter.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .sidebar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-btn {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid var(--card-border);
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .sidebar-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        /* ============================================
+           CONTENIDO PRINCIPAL DESKTOP
+        ============================================ */
+        .desktop-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            min-height: calc(100vh - var(--header-height));
+            overflow-y: auto;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.9));
+        }
+
+        .desktop-main.expanded {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        .view-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .view-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 5px;
+            border: 1px solid var(--card-border);
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--gray);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .view-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ============================================
+           VISTA GRID (TARJETAS) - DESKTOP
+        ============================================ */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .task-card.completed {
+            background: var(--success-bg);
+            border-color: var(--secondary);
+        }
+
+        .task-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .task-card-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .task-card.completed .task-card-checkbox {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .task-card.completed .task-card-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .task-card-category {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .task-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--light);
+            line-height: 1.4;
+        }
+
+        .task-card.completed .task-card-title {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .task-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .task-card-priority {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .priority-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+        }
+
+        /* ============================================
+           VISTA LISTA - DESKTOP
+        ============================================ */
+        .tasks-list {
+            display: none;
+            margin-bottom: 40px;
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .category-stats {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .task-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
+
+        .task-item.completed {
+            background: var(--success-bg);
+            border-color: var(--secondary);
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .task-item.completed .task-checkbox {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .task-item.completed .task-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* ============================================
+           MODAL (COMPARTIDO)
+        ============================================ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--light);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--light);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .select-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            padding-right: 45px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* ============================================
+           RESPONSIVE - MOBILE
+           (Se activa solo cuando sea necesario)
+        ============================================ */
+        @media (max-width: 1024px) {
+            /* Ocultar elementos desktop */
+            .desktop-sidebar,
+            .sidebar-toggle,
+            .view-controls,
+            .tasks-grid {
+                display: none !important;
+            }
+            
+            /* Ajustar layout */
+            .app-container {
+                flex-direction: column;
+                padding-top: 0;
+            }
+            
+            .desktop-main {
+                margin-left: 0;
+                padding: 20px;
+                min-height: 100vh;
+            }
+            
+            .main-header {
+                position: relative;
+                height: auto;
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .header-brand {
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .header-stats {
+                justify-content: center;
+                gap: 20px;
+            }
+            
+            .header-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .header-stat {
+                min-width: auto;
+                flex: 1;
+            }
+            
+            .header-btn {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+            
+            /* Mostrar vista lista en mobile */
+            .tasks-list {
+                display: block;
+            }
+            
+            .task-item {
+                padding: 15px;
+            }
+        }
+
+        /* Tablet ajustes */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .tasks-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ============================================
+           ANIMACIONES Y UTILIDADES
+        ============================================ */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes checkMark {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .task-checkbox.checked,
+        .task-card-checkbox.checked {
+            animation: checkMark 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--light);
+            font-size: 1.5rem;
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- ============================================
+         HEADER UNIVERSAL
+    ============================================ -->
+    <header class="main-header">
+        <div class="header-brand">
+            <div class="header-logo">
+                <i class="fas fa-bicycle"></i>
+            </div>
+            <div class="header-info">
+                <h1>BikeMaster Pro</h1>
+                <p>Checklist Mecánico Profesional • Leo Pary</p>
+            </div>
+        </div>
+
+        <div class="header-stats">
+            <div class="header-stat">
+                <div class="header-stat-number" id="totalTasks">0</div>
+                <div class="header-stat-label">Total</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-number" id="completedTasks">0</div>
+                <div class="header-stat-label">Completadas</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-number" id="pendingTasks">0</div>
+                <div class="header-stat-label">Pendientes</div>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button class="header-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="header-btn" onclick="showAddTaskModal()">
+                <i class="fas fa-plus"></i> Nueva Tarea
+            </button>
+            <button class="header-btn header-btn-primary" onclick="exportChecklist()">
+                <i class="fas fa-file-export"></i> Exportar
+            </button>
+        </div>
+    </header>
+
+    <!-- ============================================
+         LAYOUT DESKTOP
+    ============================================ -->
+    <div class="app-container">
+        <!-- Sidebar Desktop -->
+        <aside class="desktop-sidebar" id="desktopSidebar">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left" id="sidebarToggleIcon"></i>
+            </button>
+            
+            <div class="sidebar-content">
+                <!-- Filtros -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-filter"></i> Filtros</h3>
+                    <div class="sidebar-filters">
+                        <button class="sidebar-filter active" onclick="filterTasks('all')">
+                            Todas las tareas
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('pending')">
+                            Pendientes
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('completed')">
+                            Completadas
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('high')">
+                            Prioridad Alta
+                        </button>
+                        <button class="sidebar-filter" onclick="filterTasks('today')">
+                            Agregadas Hoy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-bolt"></i> Acciones</h3>
+                    <div class="sidebar-actions">
+                        <button class="sidebar-btn sidebar-btn-primary" onclick="completeAll()">
+                            <i class="fas fa-check-double"></i> Completar Todo
+                        </button>
+                        <button class="sidebar-btn" onclick="resetAll()" style="color: var(--danger); border-color: var(--danger);">
+                            <i class="fas fa-redo"></i> Reiniciar Todo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Información -->
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-info-circle"></i> Información</h3>
+                    <div style="color: var(--gray); font-size: 0.9rem; line-height: 1.6;">
+                        <p><strong>Mecánico:</strong> Leo Pary</p>
+                        <p><strong>Total tareas:</strong> <span id="sidebarTotal">0</span></p>
+                        <p><strong>Completadas:</strong> <span id="sidebarCompleted">0</span></p>
+                        <p><strong>Progreso:</strong> <span id="sidebarProgress">0%</span></p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="desktop-main" id="desktopMain">
+            <!-- Controles de Vista -->
+            <div class="view-controls">
+                <h2 class="view-title">Checklist de Preparación</h2>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setViewMode('grid')">
+                        <i class="fas fa-th-large"></i> Tarjetas
+                    </button>
+                    <button class="view-btn" onclick="setViewMode('list')">
+                        <i class="fas fa-list"></i> Lista
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista Grid (Default) -->
+            <div class="tasks-grid" id="tasksGrid">
+                <!-- Tareas en grid se renderizan aquí -->
+            </div>
+
+            <!-- Vista Lista -->
+            <div class="tasks-list" id="tasksList">
+                <!-- Tareas en lista se renderizan aquí -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================
+         MODAL NUEVA TAREA
+    ============================================ -->
+    <div class="modal" id="addTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agregar Nueva Tarea</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm" onsubmit="addNewTask(event)">
+                    <div class="form-group">
+                        <label for="taskTitle">Título de la tarea</label>
+                        <input type="text" id="taskTitle" class="form-control" 
+                               placeholder="Ej: Revisar presión de cubiertas" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskCategory">Categoría</label>
+                        <select id="taskCategory" class="form-control select-control" required>
+                            <option value="">Seleccionar categoría</option>
+                            <option value="Ruedas">Ruedas</option>
+                            <option value="Frenos">Frenos</option>
+                            <option value="Transmisión">Transmisión</option>
+                            <option value="Seguridad">Seguridad</option>
+                            <option value="Equipo">Equipo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Prioridad</label>
+                        <select id="taskPriority" class="form-control select-control" required>
+                            <option value="high">Alta (Crítica)</option>
+                            <option value="medium" selected>Media (Importante)</option>
+                            <option value="low">Baja (Rutina)</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="header-btn" onclick="closeModal()" style="flex: 1;">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="header-btn header-btn-primary" style="flex: 1;">
+                            Agregar Tarea
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
+        const STORAGE_KEY = 'bikemaster_desktop_v1';
+        const VIEW_MODE_KEY = 'bikemaster_view_mode';
+        const SIDEBAR_STATE_KEY = 'bikemaster_sidebar_state';
+        
+        // Estado global
+        const state = {
+            tasks: [],
+            filter: 'all',
+            viewMode: 'grid', // 'grid' o 'list'
+            sidebarCollapsed: false,
+            isMobile: window.innerWidth <= 1024
+        };
+
+        // Tareas por defecto
+        const defaultTasks = [
+            { id: 'u_pression', title: 'Presión de aire y estado de cubiertas', category: 'Ruedas', priority: 'high', completed: false },
+            { id: 'u_qr', title: 'Cierres rápidos o tuercas ajustadas', category: 'Ruedas', priority: 'high', completed: false },
+            { id: 'u_spokes', title: 'Tensión de rayos uniforme', category: 'Ruedas', priority: 'medium', completed: false },
+            { id: 'u_truing', title: 'Centrado de ruedas (truing)', category: 'Ruedas', priority: 'medium', completed: false },
+            { id: 'u_brakes', title: 'Pastillas/Zapatas y frenado efectivo', category: 'Frenos', priority: 'high', completed: false },
+            { id: 'u_brake_cables', title: 'Ajuste de cables y herrajes', category: 'Frenos', priority: 'medium', completed: false },
+            { id: 'u_brake_pads', title: 'Desgaste de pastillas y alineación', category: 'Frenos', priority: 'high', completed: false },
+            { id: 'u_chain', title: 'Cadena limpia y lubricada', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_chain_wear', title: 'Desgaste de cadena (medición)', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_gears', title: 'Cambios pasan correctamente', category: 'Transmisión', priority: 'high', completed: false },
+            { id: 'u_derailleur', title: 'Alineación y límites del derailleur', category: 'Transmisión', priority: 'medium', completed: false },
+            { id: 'u_cassette', title: 'Desgaste de cassette y platos', category: 'Transmisión', priority: 'low', completed: false },
+            { id: 'u_bolts', title: 'Ajuste de stem y manubrio', category: 'Seguridad', priority: 'high', completed: false },
+            { id: 'u_saddle', title: 'Tija y sillín ajustados', category: 'Seguridad', priority: 'medium', completed: false },
+            { id: 'u_pedals', title: 'Pedales y calas (si aplica)', category: 'Seguridad', priority: 'medium', completed: false },
+            { id: 'u_bearings', title: 'Rodamientos (ruedas, pedales, dirección)', category: 'Seguridad', priority: 'low', completed: false },
+            { id: 'u_headset', title: 'Headset sin juego', category: 'Seguridad', priority: 'high', completed: false },
+            { id: 'u_lights', title: 'Luces delanteras y traseras', category: 'Equipo', priority: 'high', completed: false },
+            { id: 'u_helmet', title: 'Casco en condiciones', category: 'Equipo', priority: 'high', completed: false },
+            { id: 'u_tools', title: 'Kit de herramientas y repuestos', category: 'Equipo', priority: 'medium', completed: false },
+            { id: 'u_hydration', title: 'Hidratación y alimentos', category: 'Equipo', priority: 'medium', completed: false },
+            { id: 'u_phone', title: 'Teléfono cargado y seguro', category: 'Equipo', priority: 'medium', completed: false }
+        ];
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        function init() {
+            console.log('🚀 Iniciando BikeMaster Desktop...');
+            
+            // Cargar estado
+            loadState();
+            
+            // Check viewport
+            checkViewport();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Render inicial
+            renderTasks();
+            updateStats();
+            
+            // Aplicar estado sidebar si no es mobile
+            if (!state.isMobile && state.sidebarCollapsed) {
+                toggleSidebar(true);
+            }
+            
+            console.log(`✅ App lista en modo ${state.isMobile ? 'MOBILE' : 'DESKTOP'}`);
+            console.log(`📊 ${state.tasks.length} tareas, vista: ${state.viewMode}`);
+        }
+
+        function loadState() {
+            // Cargar tasks
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                state.tasks = saved ? JSON.parse(saved) : [...defaultTasks];
+            } catch (e) {
+                console.warn('Error cargando tasks:', e);
+                state.tasks = [...defaultTasks];
+            }
+            
+            // Cargar view mode
+            const savedViewMode = localStorage.getItem(VIEW_MODE_KEY);
+            if (savedViewMode && ['grid', 'list'].includes(savedViewMode)) {
+                state.viewMode = savedViewMode;
+            }
+            
+            // Cargar sidebar state
+            const savedSidebarState = localStorage.getItem(SIDEBAR_STATE_KEY);
+            if (savedSidebarState) {
+                state.sidebarCollapsed = JSON.parse(savedSidebarState);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
+                localStorage.setItem(VIEW_MODE_KEY, state.viewMode);
+                localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(state.sidebarCollapsed));
+            } catch (e) {
+                console.error('Error guardando estado:', e);
+            }
+        }
+
+        // ============================================
+        // RESPONSIVE HANDLING
+        // ============================================
+        function checkViewport() {
+            const wasMobile = state.isMobile;
+            state.isMobile = window.innerWidth <= 1024;
+            
+            // Si cambió de desktop a mobile o viceversa
+            if (wasMobile !== state.isMobile) {
+                updateLayout();
+            }
+        }
+
+        function updateLayout() {
+            if (state.isMobile) {
+                // En mobile, forzar vista lista y ocultar sidebar
+                state.viewMode = 'list';
+                setViewMode('list', true);
+                document.querySelector('.view-controls').style.display = 'none';
+            } else {
+                // En desktop, restaurar vista guardada
+                document.querySelector('.view-controls').style.display = 'flex';
+                setViewMode(state.viewMode, true);
+            }
+        }
+
+        // ============================================
+        // RENDERIZADO
+        // ============================================
+        function renderTasks() {
+            const filteredTasks = getFilteredTasks();
+            
+            if (state.viewMode === 'grid') {
+                renderGridView(filteredTasks);
+            } else {
+                renderListView(filteredTasks);
+            }
+            
+            // Actualizar filtros activos
+            updateActiveFilters();
+        }
+
+        function renderGridView(tasks) {
+            const container = document.getElementById('tasksGrid');
+            if (!container) return;
+            
+            if (tasks.length === 0) {
+                container.innerHTML = getEmptyStateHTML();
+                return;
+            }
+            
+            const html = tasks.map(task => `
+                <div class="task-card ${task.completed ? 'completed' : ''}" 
+                     onclick="toggleTask('${task.id}', event)">
+                    <div class="task-card-header">
+                        <div class="task-card-checkbox ${task.completed ? 'checked' : ''}"></div>
+                        <div class="task-card-category">${task.category}</div>
+                    </div>
+                    <div class="task-card-title">${task.title}</div>
+                    <div class="task-card-footer">
+                        <span class="task-card-priority priority-${task.priority}">
+                            ${getPriorityLabel(task.priority)}
+                        </span>
+                        <small style="color: var(--gray);">
+                            ${task.completed ? '✓ Completada' : '⏳ Pendiente'}
+                        </small>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+            container.style.display = 'grid';
+            document.getElementById('tasksList').style.display = 'none';
+        }
+
+        function renderListView(tasks) {
+            const container = document.getElementById('tasksList');
+            if (!container) return;
+            
+            if (tasks.length === 0) {
+                container.innerHTML = getEmptyStateHTML();
+                return;
+            }
+            
+            // Agrupar por categoría
+            const categories = {};
+            tasks.forEach(task => {
+                if (!categories[task.category]) {
+                    categories[task.category] = [];
+                }
+                categories[task.category].push(task);
+            });
+            
+            let html = '';
+            for (const [category, catTasks] of Object.entries(categories)) {
+                const completed = catTasks.filter(t => t.completed).length;
+                
+                html += `
+                    <div class="category-section">
+                        <div class="category-header" onclick="toggleCategory('${category}')">
+                            <div class="category-title">
+                                <i class="fas ${getCategoryIcon(category)}"></i>
+                                ${category}
+                            </div>
+                            <div class="category-stats">
+                                ${completed}/${catTasks.length}
+                            </div>
+                        </div>
+                        <div class="category-content">
+                            ${catTasks.map(task => `
+                                <div class="task-item ${task.completed ? 'completed' : ''}" 
+                                     onclick="toggleTask('${task.id}', event)">
+                                    <div class="task-checkbox ${task.completed ? 'checked' : ''}"></div>
+                                    <div class="task-content">
+                                        <div class="task-title">${task.title}</div>
+                                        <div class="task-meta">
+                                            <span class="task-priority priority-${task.priority}">
+                                                ${getPriorityLabel(task.priority)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+            container.style.display = 'block';
+            document.getElementById('tasksGrid').style.display = 'none';
+        }
+
+        function getEmptyStateHTML() {
+            return `
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No hay tareas para mostrar</h3>
+                    <p>Usa el botón "Nueva Tarea" para agregar items al checklist</p>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // HANDLERS PRINCIPALES
+        // ============================================
+        function toggleTask(taskId, event) {
+            event.stopPropagation();
+            
+            const taskIndex = state.tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            // Toggle estado
+            state.tasks[taskIndex].completed = !state.tasks[taskIndex].completed;
+            
+            // Feedback visual inmediato
+            const element = event.currentTarget;
+            element.classList.toggle('completed');
+            
+            const checkbox = element.querySelector('.task-checkbox') || 
+                            element.querySelector('.task-card-checkbox');
+            if (checkbox) {
+                checkbox.classList.toggle('checked');
+                checkbox.classList.add('checked');
+                setTimeout(() => checkbox.classList.remove('checked'), 300);
+            }
+            
+            // Actualizar stats
+            updateStats();
+            
+            // Guardar
+            saveState();
+        }
+
+        function filterTasks(filterType, element) {
+            // Si se llama desde sidebar (mobile usa event)
+            if (!element && event && event.target) {
+                element = event.target;
+            }
+            
+            // Update filter
+            state.filter = filterType;
+            
+            // Update UI
+            updateActiveFilters();
+            renderTasks();
+        }
+
+        function getFilteredTasks() {
+            let filtered = [...state.tasks];
+            
+            switch (state.filter) {
+                case 'pending':
+                    filtered = filtered.filter(t => !t.completed);
+                    break;
+                case 'completed':
+                    filtered = filtered.filter(t => t.completed);
+                    break;
+                case 'high':
+                    filtered = filtered.filter(t => t.priority === 'high');
+                    break;
+                case 'today':
+                    const today = new Date().toDateString();
+                    filtered = filtered.filter(t => {
+                        const created = new Date(t.createdAt || Date.now()).toDateString();
+                        return created === today;
+                    });
+                    break;
+            }
+            
+            return filtered;
+        }
+
+        function updateActiveFilters() {
+            // Actualizar botones de filtro
+            document.querySelectorAll('.sidebar-filter, .filter-tab').forEach(btn => {
+                btn.classList.remove('active');
+                const filterType = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+                if (filterType === state.filter) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // ============================================
+        // VISTAS Y SIDEBAR
+        // ============================================
+        function setViewMode(mode, force = false) {
+            if (state.isMobile && !force) {
+                // En mobile solo permitir lista
+                mode = 'list';
+            }
+            
+            state.viewMode = mode;
+            saveState();
+            
+            // Update UI
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(mode === 'grid' ? 'Tarjetas' : 'Lista')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderTasks();
+        }
+
+        function toggleSidebar(force = false) {
+            if (state.isMobile && !force) return;
+            
+            state.sidebarCollapsed = !state.sidebarCollapsed;
+            
+            const sidebar = document.getElementById('desktopSidebar');
+            const main = document.getElementById('desktopMain');
+            const icon = document.getElementById('sidebarToggleIcon');
+            
+            if (state.sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                main.classList.add('expanded');
+                icon.className = 'fas fa-chevron-right';
+            } else {
+                sidebar.classList.remove('collapsed');
+                main.classList.remove('expanded');
+                icon.className = 'fas fa-chevron-left';
+            }
+            
+            saveState();
+        }
+
+        function toggleCategory(category) {
+            const element = event?.target?.closest('.category-section');
+            if (!element) return;
+            
+            const content = element.querySelector('.category-content');
+            if (content) {
+                content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE UI
+        // ============================================
+        function updateStats() {
+            const total = state.tasks.length;
+            const completed = state.tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            // Header stats
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('pendingTasks').textContent = pending;
+            
+            // Sidebar stats
+            document.getElementById('sidebarTotal').textContent = total;
+            document.getElementById('sidebarCompleted').textContent = completed;
+            document.getElementById('sidebarProgress').textContent = `${progress}%`;
+        }
+
+        function showAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'flex';
+            document.getElementById('taskTitle').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('addTaskModal').style.display = 'none';
+            document.getElementById('taskForm').reset();
+        }
+
+        function addNewTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value.trim();
+            const category = document.getElementById('taskCategory').value;
+            const priority = document.getElementById('taskPriority').value;
+            
+            if (!title || !category) {
+                alert('Completa todos los campos');
+                return;
+            }
+            
+            const newTask = {
+                id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                title: title,
+                category: category,
+                priority: priority,
+                completed: false,
+                createdAt: new Date()
+            };
+            
+            // Agregar al inicio
+            state.tasks.unshift(newTask);
+            
+            // Update UI
+            updateStats();
+            renderTasks();
+            saveState();
+            
+            // Cerrar modal y feedback
+            closeModal();
+            showToast('Tarea agregada ✓');
+        }
+
+        function completeAll() {
+            if (!confirm('¿Marcar TODAS las tareas como completadas?')) return;
+            
+            state.tasks.forEach(task => {
+                task.completed = true;
+            });
+            
+            updateStats();
+            renderTasks();
+            saveState();
+            
+            showToast('¡Todas las tareas completadas!');
+        }
+
+        function resetAll() {
+            if (!confirm('¿Reiniciar TODO el progreso?\nTodas las tareas quedarán como pendientes.')) return;
+            
+            state.tasks.forEach(task => {
+                task.completed = false;
+            });
+            
+            updateStats();
+            renderTasks();
+            saveState();
+            
+            showToast('Progreso reiniciado');
+        }
+
+        function exportChecklist() {
+            const data = {
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    app: 'BikeMaster Pro',
+                    mecanico: 'Leo Pary',
+                    version: '1.0',
+                    viewMode: state.viewMode,
+                    sidebarCollapsed: state.sidebarCollapsed
+                },
+                checklist: state.tasks,
+                summary: {
+                    total: state.tasks.length,
+                    completed: state.tasks.filter(t => t.completed).length,
+                    pending: state.tasks.filter(t => !t.completed).length,
+                    progress: Math.round((state.tasks.filter(t => t.completed).length / state.tasks.length) * 100) || 0
+                }
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const fileName = `checklist-bici-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', fileName);
+            link.click();
+            
+            showToast('Checklist exportado ✓');
+        }
+
+        // ============================================
+        // UTILIDADES
+        // ============================================
+        function getCategoryIcon(category) {
+            const icons = {
+                'Ruedas': 'fa-tire',
+                'Frenos': 'fa-hand-paper',
+                'Transmisión': 'fa-cogs',
+                'Seguridad': 'fa-shield-alt',
+                'Equipo': 'fa-tools'
+            };
+            return icons[category] || 'fa-circle';
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = { high: 'Alta', medium: 'Media', low: 'Baja' };
+            return labels[priority] || priority;
+        }
+
+        function setupEventListeners() {
+            // Resize para responsive
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    checkViewport();
+                }, 250);
+            });
+
+            // Click outside modal
+            window.addEventListener('click', (e) => {
+                const modal = document.getElementById('addTaskModal');
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 30px;
+                background: var(--primary);
+                color: white;
+                padding: 14px 24px;
+                border-radius: var(--radius-md);
+                font-weight: 700;
+                z-index: 3000;
+                animation: slideInRight 0.3s ease;
+                box-shadow: var(--shadow-lg);
+                max-width: 300px;
+            `;
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+            
+            // Agregar keyframes si no existen
+            if (!document.querySelector('#toast-animations')) {
+                const style = document.createElement('style');
+                style.id = 'toast-animations';
+                style.textContent = `
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOutRight {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // ============================================
+        // INICIALIZACIÓN FINAL
+        // ============================================
+        // Exponer funciones globales
+        window.toggleTask = toggleTask;
+        window.filterTasks = filterTasks;
+        window.setViewMode = setViewMode;
+        window.toggleSidebar = toggleSidebar;
+        window.toggleCategory = toggleCategory;
+        window.showAddTaskModal = showAddTaskModal;
+        window.closeModal = closeModal;
+        window.addNewTask = addNewTask;
+        window.completeAll = completeAll;
+        window.resetAll = resetAll;
+        window.exportChecklist = exportChecklist;
+
+        // Iniciar app
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            setTimeout(init, 100);
+        }
+    </script>
+</body>
+</html>
