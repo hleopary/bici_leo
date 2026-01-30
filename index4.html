@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Mecánico - Leo Pary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --border: #334155;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.5;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 28px;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .header-icon {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .header-text h1 {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Estadísticas */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 5px 0;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 5px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Barra de progreso */
+        .progress-container {
+            background: var(--border);
+            height: 14px;
+            border-radius: 7px;
+            margin: 25px 0 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 7px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        /* Mensaje de estado */
+        #status-message {
+            text-align: center;
+            margin: 20px 0;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        #status-message.complete {
+            color: var(--secondary);
+            background: var(--success-bg);
+            border-color: var(--secondary);
+        }
+
+        /* Secciones */
+        .section {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-top: 25px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .section i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Items */
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 16px 14px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            user-select: none;
+        }
+
+        .item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .item.done {
+            background: var(--success-bg);
+            border-left: 4px solid var(--secondary);
+        }
+
+        input[type="checkbox"] {
+            margin-right: 16px;
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            flex-shrink: 0;
+            border-radius: 6px;
+        }
+
+        input[type="checkbox"]:checked {
+            animation: checkAnim 0.3s ease;
+        }
+
+        @keyframes checkAnim {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .item-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .item.done .item-text {
+            text-decoration: line-through;
+            color: var(--muted);
+        }
+
+        .item-icon {
+            color: var(--muted);
+            margin-left: 12px;
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .item.done .item-icon {
+            color: var(--secondary);
+        }
+
+        /* Botones */
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .btn i {
+            font-size: 1.1rem;
+        }
+
+        .btn-reset {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-reset:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-export {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-export:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 560px) {
+            .card {
+                padding: 22px;
+                border-radius: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+            
+            .header-icon {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                padding: 18px;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .item {
+                padding: 14px 12px;
+            }
+        }
+
+        /* Animación para completar */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .complete-animation {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        /* Fecha y hora */
+        .timestamp {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        /* Ajustes para scroll si hay muchas tareas */
+        .task-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .task-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .task-container::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 3px;
+        }
+
+        .task-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <div class="header-icon">
+                <i class="fas fa-bicycle"></i>
+            </div>
+            <div class="header-text">
+                <h1>Checklist Mecánico Profesional</h1>
+                <p>Leo Pary • Preparación para bicicleteada</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="done-count">0</div>
+                <div class="stat-label">Completados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="remaining-count">0</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div class="progress-text">
+            <span>Progreso</span>
+            <span id="progress-percent">0%</span>
+        </div>
+
+        <div id="status-message" class="status">🛠️ Comienza el chequeo de la bicicleta</div>
+
+        <div class="task-container" id="list">
+            <!-- Las tareas se insertarán aquí -->
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-reset" onclick="resetChecklist()">
+                <i class="fas fa-redo"></i> Reiniciar Todo
+            </button>
+            <button class="btn btn-export" onclick="exportChecklist()">
+                <i class="fas fa-file-export"></i> Guardar Estado
+            </button>
+        </div>
+
+        <div class="timestamp" id="timestamp">
+            Última actualización: <span id="last-update">--:--:--</span>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de tareas profesionales para mecánico
+        const tasks = [
+            // RUEDAS
+            { id: 'u_pression', cat: 'Ruedas', icon: 'fa-tire-pressure-warning', t: 'Presión de aire y estado de cubiertas' },
+            { id: 'u_qr', cat: 'Ruedas', icon: 'fa-bolt', t: 'Cierres rápidos o tuercas ajustadas' },
+            { id: 'u_truing', cat: 'Ruedas', icon: 'fa-circle-notch', t: 'Centrado de ruedas (truing)' },
+            { id: 'u_spokes', cat: 'Ruedas', icon: 'fa-grip-lines', t: 'Tensión de rayos uniforme' },
+            
+            // FRENOS
+            { id: 'u_brakes', cat: 'Frenos', icon: 'fa-hand-paper', t: 'Pastillas/Zapatas y frenado efectivo' },
+            { id: 'u_brake_cables', cat: 'Frenos', icon: 'fa-sliders-h', t: 'Ajuste de cables y herrajes' },
+            { id: 'u_brake_pads', cat: 'Frenos', icon: 'fa-stop-circle', t: 'Desgaste de pastillas y alineación' },
+            { id: 'u_brake_levers', cat: 'Frenos', icon: 'fa-hand-point-up', t: 'Palancas de freno ajustadas' },
+            
+            // TRANSMISIÓN
+            { id: 'u_chain', cat: 'Transmisión', icon: 'fa-link', t: 'Cadena limpia y lubricada' },
+            { id: 'u_chain_wear', cat: 'Transmisión', icon: 'fa-ruler-combined', t: 'Desgaste de cadena (medición)' },
+            { id: 'u_gears', cat: 'Transmisión', icon: 'fa-sliders-h', t: 'Cambios pasan correctamente' },
+            { id: 'u_derailleur', cat: 'Transmisión', icon: 'fa-cogs', t: 'Alineación y límites del derailleur' },
+            { id: 'u_cassette', cat: 'Transmisión', icon: 'fa-gear', t: 'Desgaste de cassette y platos' },
+            
+            // SEGURIDAD
+            { id: 'u_bolts', cat: 'Seguridad', icon: 'fa-wrench', t: 'Ajuste de stem y manubrio' },
+            { id: 'u_saddle', cat: 'Seguridad', icon: 'fa-chair', t: 'Tija y sillín ajustados' },
+            { id: 'u_pedals', cat: 'Seguridad', icon: 'fa-shoe-prints', t: 'Pedales y calas (si aplica)' },
+            { id: 'u_bearings', cat: 'Seguridad', icon: 'fa-cog', t: 'Rodamientos (ruedas, pedales, dirección)' },
+            { id: 'u_headset', cat: 'Seguridad', icon: 'fa-arrows-up-down', t: 'Headset sin juego' },
+            
+            // EQUIPO
+            { id: 'u_lights', cat: 'Equipo', icon: 'fa-lightbulb', t: 'Luces delanteras y traseras' },
+            { id: 'u_helmet', cat: 'Equipo', icon: 'fa-hard-hat', t: 'Casco en condiciones' },
+            { id: 'u_tools', cat: 'Equipo', icon: 'fa-toolbox', t: 'Kit de herramientas y repuestos' },
+            { id: 'u_hydration', cat: 'Equipo', icon: 'fa-tint', t: 'Hidratación y alimentos' },
+            { id: 'u_phone', cat: 'Equipo', icon: 'fa-mobile-alt', t: 'Teléfono cargado y seguro' }
+        ];
+
+        // Estado global de la aplicación
+        const appState = {
+            total: tasks.length,
+            completed: 0,
+            progress: 0,
+            lastUpdate: new Date()
+        };
+
+        // Iconos por categoría
+        const categoryIcons = {
+            'Ruedas': 'fa-tire',
+            'Frenos': 'fa-hand-paper',
+            'Transmisión': 'fa-cogs',
+            'Seguridad': 'fa-shield-alt',
+            'Equipo': 'fa-tools'
+        };
+
+        // ===== FUNCIONES PRINCIPALES =====
+
+        /**
+         * Inicializa el almacenamiento local
+         */
+        function initializeStorage() {
+            tasks.forEach(task => {
+                if (!localStorage.getItem(task.id)) {
+                    localStorage.setItem(task.id, 'false');
+                }
+            });
+            
+            // Guardar última actualización
+            updateTimestamp();
+        }
+
+        /**
+         * Renderiza todas las tareas en la interfaz
+         */
+        function render() {
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            
+            let lastCat = '';
+            appState.completed = 0;
+
+            // Renderizar cada tarea
+            tasks.forEach(task => {
+                // Agregar sección si cambia la categoría
+                if (task.cat !== lastCat) {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section';
+                    sectionDiv.innerHTML = `
+                        <i class="fas ${categoryIcons[task.cat] || 'fa-check-circle'}"></i>
+                        ${task.cat}
+                    `;
+                    list.appendChild(sectionDiv);
+                    lastCat = task.cat;
+                }
+
+                // Verificar estado de la tarea
+                const isDone = localStorage.getItem(task.id) === 'true';
+                if (isDone) appState.completed++;
+
+                // Crear elemento de tarea
+                const itemDiv = document.createElement('label');
+                itemDiv.className = `item ${isDone ? 'done' : ''}`;
+                itemDiv.innerHTML = `
+                    <input type="checkbox" ${isDone ? 'checked' : ''} 
+                           onchange="toggleTask('${task.id}', this.checked)">
+                    <div class="item-text">${task.t}</div>
+                    <div class="item-icon">
+                        <i class="fas ${task.icon}"></i>
+                    </div>
+                `;
+                list.appendChild(itemDiv);
+            });
+
+            // Calcular progreso
+            appState.progress = tasks.length > 0 
+                ? Math.round((appState.completed / tasks.length) * 100) 
+                : 0;
+            
+            // Actualizar toda la interfaz
+            updateUI();
+        }
+
+        /**
+         * Alterna el estado de una tarea
+         */
+        function toggleTask(id, completed) {
+            localStorage.setItem(id, completed.toString());
+            appState.lastUpdate = new Date();
+            updateTimestamp();
+            render();
+            
+            // Efecto visual si se completó todo
+            if (appState.completed === appState.total && completed) {
+                document.getElementById('status-message').classList.add('complete-animation');
+                setTimeout(() => {
+                    document.getElementById('status-message').classList.remove('complete-animation');
+                }, 500);
+                
+                // Confeti visual para celebrar
+                celebrateCompletion();
+            }
+        }
+
+        /**
+         * Actualiza toda la interfaz de usuario
+         */
+        function updateUI() {
+            // Barra de progreso
+            const progressBar = document.getElementById('progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${appState.progress}%`;
+            }
+            
+            // Porcentaje
+            const progressPercent = document.getElementById('progress-percent');
+            if (progressPercent) {
+                progressPercent.textContent = `${appState.progress}%`;
+            }
+            
+            // Estadísticas
+            const totalCount = document.getElementById('total-count');
+            const doneCount = document.getElementById('done-count');
+            const remainingCount = document.getElementById('remaining-count');
+            
+            if (totalCount) totalCount.textContent = appState.total;
+            if (doneCount) doneCount.textContent = appState.completed;
+            if (remainingCount) remainingCount.textContent = appState.total - appState.completed;
+            
+            // Mensaje de estado
+            const statusEl = document.getElementById('status-message');
+            if (statusEl) {
+                statusEl.className = 'status';
+                
+                if (appState.completed === 0) {
+                    statusEl.textContent = '🛠️ Comienza el chequeo de la bicicleta';
+                    statusEl.style.color = '';
+                } else if (appState.completed < appState.total) {
+                    statusEl.textContent = `⚙️ En progreso: ${appState.completed}/${appState.total} completados`;
+                    statusEl.style.color = '';
+                } else {
+                    statusEl.textContent = '✅ ¡Todo listo! La bici está en óptimas condiciones';
+                    statusEl.classList.add('complete');
+                }
+            }
+        }
+
+        /**
+         * Actualiza el timestamp
+         */
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('es-AR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            const dateString = now.toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            
+            const timestampEl = document.getElementById('last-update');
+            if (timestampEl) {
+                timestampEl.textContent = `${dateString} ${timeString}`;
+            }
+        }
+
+        /**
+         * Reinicia todo el checklist
+         */
+        function resetChecklist() {
+            if (confirm('¿Estás seguro de reiniciar todo el checklist?\nSe perderá todo el progreso actual.')) {
+                tasks.forEach(task => {
+                    localStorage.setItem(task.id, 'false');
+                });
+                appState.lastUpdate = new Date();
+                updateTimestamp();
+                render();
+            }
+        }
+
+        /**
+         * Exporta el estado actual a JSON
+         */
+        function exportChecklist() {
+            const exportData = {
+                metadata: {
+                    fecha: new Date().toISOString(),
+                    version: '1.0',
+                    tipo: 'checklist-mecanico-bicicleta'
+                },
+                info: {
+                    mecanico: 'Leo Pary',
+                    evento: 'Preparación para bicicleteada',
+                    fechaPreparacion: new Date().toLocaleDateString('es-AR')
+                },
+                estadisticas: {
+                    totalTareas: appState.total,
+                    completadas: appState.completed,
+                    pendientes: appState.total - appState.completed,
+                    progreso: `${appState.progress}%`
+                },
+                tareas: tasks.map(task => ({
+                    id: task.id,
+                    tarea: task.t,
+                    categoria: task.cat,
+                    completada: localStorage.getItem(task.id) === 'true',
+                    icono: task.icon
+                })),
+                resumen: {
+                    estado: appState.completed === appState.total ? 'COMPLETO' : 'EN_PROGRESO',
+                    recomendacion: appState.completed === appState.total 
+                        ? 'Bicicleta lista para uso profesional' 
+                        : 'Revisar items pendientes antes del uso'
+                }
+            };
+            
+            // Crear archivo JSON
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            // Nombre del archivo con fecha
+            const fileName = `checklist-bici-${new Date().toISOString().split('T')[0]}.json`;
+            
+            // Crear link de descarga
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', fileName);
+            linkElement.style.display = 'none';
+            document.body.appendChild(linkElement);
+            
+            // Descargar
+            linkElement.click();
+            document.body.removeChild(linkElement);
+            
+            // Feedback visual
+            const exportBtn = document.querySelector('.btn-export');
+            const originalHTML = exportBtn.innerHTML;
+            
+            exportBtn.innerHTML = '<i class="fas fa-check"></i> ¡Guardado!';
+            exportBtn.style.background = 'rgba(16, 185, 129, 0.2)';
+            exportBtn.style.borderColor = 'var(--secondary)';
+            exportBtn.style.color = 'var(--secondary)';
+            
+            setTimeout(() => {
+                exportBtn.innerHTML = originalHTML;
+                exportBtn.style.background = '';
+                exportBtn.style.borderColor = '';
+                exportBtn.style.color = '';
+            }, 2000);
+        }
+
+        /**
+         * Efecto visual al completar todo
+         */
+        function celebrateCompletion() {
+            const statusEl = document.getElementById('status-message');
+            if (statusEl) {
+                // Agregar efecto de confeti visual
+                statusEl.style.position = 'relative';
+                statusEl.style.overflow = 'hidden';
+                
+                // Crear partículas de confeti
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.style.position = 'absolute';
+                        confetti.style.width = '6px';
+                        confetti.style.height = '6px';
+                        confetti.style.background = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'][Math.floor(Math.random() * 4)];
+                        confetti.style.borderRadius = '50%';
+                        confetti.style.top = Math.random() * 100 + '%';
+                        confetti.style.left = Math.random() * 100 + '%';
+                        confetti.style.animation = `confettiFall ${1 + Math.random()}s linear forwards`;
+                        
+                        // Crear animación CSS dinámica
+                        const style = document.createElement('style');
+                        style.textContent = `
+                            @keyframes confettiFall {
+                                0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+                                100% { transform: translateY(100px) rotate(360deg); opacity: 0; }
+                            }
+                        `;
+                        document.head.appendChild(style);
+                        
+                        statusEl.appendChild(confetti);
+                        
+                        // Remover después de la animación
+                        setTimeout(() => {
+                            if (confetti.parentNode) {
+                                confetti.parentNode.removeChild(confetti);
+                            }
+                        }, 1000);
+                    }, i * 100);
+                }
+            }
+        }
+
+        /**
+         * Inicializa la aplicación
+         */
+        function initializeApp() {
+            console.log('🚀 Iniciando Checklist Mecánico Profesional...');
+            
+            // Verificar que todos los elementos DOM existen
+            const requiredElements = ['list', 'total-count', 'done-count', 'remaining-count', 
+                                     'progress-bar', 'progress-percent', 'status-message', 'last-update'];
+            
+            let allElementsExist = true;
+            requiredElements.forEach(id => {
+                if (!document.getElementById(id)) {
+                    console.error(`❌ Elemento #${id} no encontrado en el DOM`);
+                    allElementsExist = false;
+                }
+            });
+            
+            if (!allElementsExist) {
+                console.error('⚠️ Algunos elementos requeridos no se encuentran en el DOM');
+                return;
+            }
+            
+            // Inicializar storage y renderizar
+            initializeStorage();
+            render();
+            
+            console.log('✅ Aplicación inicializada correctamente');
+            console.log(`📊 ${tasks.length} tareas cargadas`);
+            
+            // Forzar actualización visual inicial
+            updateUI();
+        }
+
+        // ===== INICIALIZACIÓN =====
+
+        // Estrategia de inicialización robusta
+        function startApp() {
+            // Esperar a que el DOM esté completamente listo
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeApp);
+            } else {
+                // DOM ya está listo, inicializar inmediatamente
+                setTimeout(initializeApp, 50); // Pequeño delay para asegurar
+            }
+        }
+
+        // Iniciar la aplicación
+        startApp();
+
+        // Exponer funciones al scope global para los event handlers
+        window.toggleTask = toggleTask;
+        window.resetChecklist = resetChecklist;
+        window.exportChecklist = exportChecklist;
+
+        // Debug helper
+        console.log('📋 Script checklist-mecanico.js cargado');
+    </script>
+</body>
+</html>
